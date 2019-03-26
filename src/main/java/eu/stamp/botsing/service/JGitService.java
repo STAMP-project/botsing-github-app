@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
+import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.CreateBranchCommand;
@@ -192,6 +193,33 @@ public class JGitService {
 			} catch (Exception e) {
 				throw new Exception("Could not checkout repository " + repositoryFolder, e);
 			}
+
+		} catch (IOException e) {
+			throw new Exception("Could not access repository " + repositoryFolder, e);
+
+		} finally {
+			if (git != null) {
+				git.close();
+			}
+		}
+	}
+
+	public Repository addFolder(File repositoryFolder, String folder) throws Exception {
+		log.debug("Commiting");
+
+		Git git = null;
+
+		try {
+			Repository repo = new FileRepositoryBuilder().readEnvironment().findGitDir(repositoryFolder).build();
+			git = new Git(repo);
+
+			AddCommand add = git.add();
+			add.addFilepattern(folder);
+
+			add.call();
+			log.debug("Add folder done");
+
+			return repo;
 
 		} catch (IOException e) {
 			throw new Exception("Could not access repository " + repositoryFolder, e);

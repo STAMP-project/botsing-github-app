@@ -76,25 +76,33 @@ public class JGitServiceTest {
 	}
 
 	@Test
-	public void createNewBranchTest() {
-		try {
-			File existingRepoFolder = new File("/tmp/stamp-github-app-test");
+	public void createNewBranchTest() throws Exception {
 
-			Repository repo = service.createNewBranch(existingRepoFolder, "nuovo-branch", true);
+		File existingRepoFolder = new File("/tmp/stamp-github-app-test");
+		existingRepoFolder = new File("/tmp/1553616403110-0");
 
-			log.info("Branch created: " +repo.getBranch());
+		String newBranch = "botsing-reproduction-branch-1-" + System.currentTimeMillis();
+		Repository repo = service.createNewBranch(existingRepoFolder, newBranch, true);
 
-			assertNotNull(repo);
+		log.info("Branch created: " +repo.getBranch());
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		assertNotNull(repo.getBranch());
+	}
+
+	@Test
+	public void addFolderTest() throws Exception {
+
+		File existingRepoFolder = new File("/tmp/stamp-github-app-test");
+		existingRepoFolder = new File("/tmp/1553616403110-0");
+
+		service.addFolder(existingRepoFolder, "src");
 	}
 
 	@Test
 	public void commitAllTest() {
 		try {
 			File existingRepoFolder = new File("/tmp/stamp-github-app-test");
+			existingRepoFolder = new File("/tmp/1553616403110-0");
 
 			Repository repo = service.commitAll(existingRepoFolder, "comment");
 
@@ -108,18 +116,14 @@ public class JGitServiceTest {
 	}
 
 	@Test
-	public void pushTest() {
-		try {
-			File existingRepoFolder = new File("/tmp/stamp-github-app-test");
+	public void pushTest() throws Exception {
+		File existingRepoFolder = new File("/tmp/stamp-github-app-test");
+		existingRepoFolder = new File("/tmp/1553618238645-0");
 
-			Repository repo = service.push(existingRepoFolder, "nuovo-branch");
+		Repository repo = service.push(existingRepoFolder, "botsing-reproduction-branch-7-1553618251964");
 
-			log.info("Push done! Repository status: " +repo.getRepositoryState().getDescription());
+		log.info("Push done! Repository status: " + repo.getRepositoryState().getDescription());
 
-			assertNotNull(repo);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		assertNotNull(repo);
 	}
 }

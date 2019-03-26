@@ -31,7 +31,7 @@ public class MavenRunner {
 			// TODO remove SNAPSHOT version
 			// TODO add optional parameters (population, searchBudget, globalTimeout, testDir)
 			executeProcess(projectFolder, "mvn", "eu.stamp-project:botsing-maven:1.0.5-SNAPSHOT:botsing",
-					"-Dcrash_log=" + crashLogFile, "-Dtarget_frame=targetFrame",
+					"-Dcrash_log=" + crashLogFile, "-Dtarget_frame="+targetFrame,
 					"-Dorg.slf4j.simpleLogger.log.org.evosuite=off", "-Dorg.slf4j.simpleLogger.showLogName=true");
 
 			log.debug("Botsing executed successfully");

@@ -82,12 +82,13 @@ public class GitHubAppController {
 
 					// get repository information
 					String repositoryName = jsonObject.get("repository").getAsJsonObject().get("name").getAsString();
-					String repositoryURL  = jsonObject.get("repository").getAsJsonObject().get("url").getAsString();
+					String repositoryURL  = jsonObject.get("repository").getAsJsonObject().get("html_url").getAsString();
 					String repositoryOwner = jsonObject.get("repository").getAsJsonObject().get("owner").getAsJsonObject().get("login").getAsString();
 
 					handlePipeline(bodyBranch, repositoryName, repositoryURL, repositoryOwner, issueNumber,
 							bodyCrashLog, bodyPomPath, bodyTargetFrame, bodyPopulation, bodySearchBudget,
 							bodyGlobalTimeout);
+
 					response.put("message", "Pull request created with reproduction tests!");
 
 				} else if (action.equals("edited")) {
@@ -114,14 +115,17 @@ public class GitHubAppController {
 			String issueNumber, String crashLog, String pomPath, String targetFrame, String population, String searchBudget,
 			String globalTimeout) throws Exception {
 
-		// checkout project from GitHub
+		// checkout project from GitHub - src/main/java/eu/stamp/botsing/controller/GitHubAppController.java
 		File repoFolder = gitService.cloneRepository(repositoryURL);
 
 		// checkout branch of the push
 		gitService.checkoutBranch(repoFolder, branch);
 
-		// move to the module with pom.xml
-		File projectFolder = new File(repoFolder.getAbsolutePath() + pomPath);
+		// move to the module to build
+		if (pomPath.endsWith("pom.xml")) {
+			pomPath = pomPath.substring(0, pomPath.length()-7);
+		}
+		File projectFolder = new File(repoFolder.getAbsolutePath() + "/"+ pomPath);
 
 		// compile project
 		MavenRunner.compileWithoutTests(projectFolder);
@@ -144,8 +148,9 @@ public class GitHubAppController {
 		String newBranch = "botsing-reproduction-branch-" + issueNumber + "-" + System.currentTimeMillis();
 		gitService.createNewBranch(repoFolder, newBranch, true);
 
-		// commit new tests
-		gitService.commitAll(repoFolder, "added tests");
+		// commit new test
+		gitService.addFolder(repoFolder, "src");
+		gitService.commitAll(repoFolder, "Add reproduction test from issue "+issueNumber);
 
 		// push
 		gitService.push(repoFolder, newBranch);
