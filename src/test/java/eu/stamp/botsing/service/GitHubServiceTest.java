@@ -45,4 +45,14 @@ public class GitHubServiceTest {
 
 		assertNotNull(body);
 	}
+
+	@Test
+	public void createIssueCommentIsNotNull() throws IOException {
+		String owner = "luandrea";
+		String repoName = "testrepo-github-app";
+
+		String body = service.createIssueComment(repoName, owner, "7", "Comment by github app");
+
+		assertNotNull(body);
+	}
 }

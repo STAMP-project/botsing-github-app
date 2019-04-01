@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 
+import org.eclipse.egit.github.core.Comment;
 import org.eclipse.egit.github.core.Issue;
 import org.eclipse.egit.github.core.PullRequest;
 import org.eclipse.egit.github.core.PullRequestMarker;
@@ -27,8 +28,19 @@ public class GitHubService {
 	public GitHubService(ConfigurationBean configuration) {
 		super();
 
-		client = new GitHubClient().setCredentials(configuration.getGithubUsername(),
-				configuration.getGithubPassword());
+		client = new GitHubClient();
+
+		// set credentials
+		if (configuration.getGithubOAuth2Token() != null || configuration.getGithubOAuth2Token().length() > 0) {
+			client.setOAuth2Token(configuration.getGithubOAuth2Token());
+
+		} else if (configuration.getGithubUsername() != null || configuration.getGithubUsername().length() > 0) {
+			client.setCredentials(configuration.getGithubUsername(), configuration.getGithubPassword());
+		} else {
+			log.warn("No GitHub credentials provided");
+		}
+
+		client.setHeaderAccept("application/vnd.github.machine-man-preview+json");
 
 		if (configuration.getProxyHost() != null && configuration.getProxyPort() != null) {
 			Proxy proxy = new Proxy(Proxy.Type.HTTP,
@@ -68,6 +80,17 @@ public class GitHubService {
 
 		log.debug("Read issue");
 		return result;
+	}
+
+	public String createIssueComment(String repositoryName, String repositoryOwner, String issueNumber, String comment)
+			throws IOException {
+		log.debug("Creating new issue comment");
+
+		IssueService issueService = new IssueService(client);
+		Comment issueComment = issueService.createComment(repositoryOwner, repositoryName, issueNumber, comment);
+
+		log.debug("Issue comment created");
+		return issueComment.getBody();
 	}
 
 }

@@ -9,12 +9,21 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties
 public class ConfigurationBean {
 
+	private String githubOAuth2Token;
 	private String githubUsername;
 	private String githubPassword;
 	private String githubToken;
 
 	private String proxyHost;
 	private Integer proxyPort;
+
+	public String getGithubOAuth2Token() {
+		return githubOAuth2Token;
+	}
+
+	public void setGithubOAuth2Token(String githubOAuth2Token) {
+		this.githubOAuth2Token = githubOAuth2Token;
+	}
 
 	public String getGithubUsername() {
 		return githubUsername;

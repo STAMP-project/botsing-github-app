@@ -67,16 +67,17 @@ public class GitHubAppController {
 					String issueTitle = jsonObject.get("issue").getAsJsonObject().get("title").getAsString();
 					String issueBody = jsonObject.get("issue").getAsJsonObject().get("body").getAsString();
 
+					log.info("Received new issue event " + issueNumber);
+
 					// get bug information from issue body
-					String bodyRepositoryURL = getParamFromBody("repositoryURL", issueBody);
-					String bodyPomPath = getParamFromBody("pomPath", issueBody);
-					String bodyBranch = getParamFromBody("branch", issueBody);
+					String bodyBuildType = getParamFromBody("buildType", issueBody);
+					String bodyProjectPath = getParamFromBody("projectPath", issueBody);
+					String bodyVersionReference = getParamFromBody("versionReference", issueBody);
 
 					String bodyTargetFrame = getParamFromBody("targetFrame", issueBody);
 					String bodyPopulation = getParamFromBody("population", issueBody);
 					String bodySearchBudget = getParamFromBody("search_budget", issueBody);
 					String bodyGlobalTimeout = getParamFromBody("global_timeout", issueBody);
-					//String bodyTestDir = getParamFromBody("test_dir", issueBody);
 
 					String bodyCrashLog = getSectionFromBody("crashLog", issueBody);
 
@@ -85,11 +86,18 @@ public class GitHubAppController {
 					String repositoryURL  = jsonObject.get("repository").getAsJsonObject().get("html_url").getAsString();
 					String repositoryOwner = jsonObject.get("repository").getAsJsonObject().get("owner").getAsJsonObject().get("login").getAsString();
 
-					handlePipeline(bodyBranch, repositoryName, repositoryURL, repositoryOwner, issueNumber,
-							bodyCrashLog, bodyPomPath, bodyTargetFrame, bodyPopulation, bodySearchBudget,
-							bodyGlobalTimeout);
+					if (bodyCrashLog.length()>0) {
+						log.info("Received issue " + issueNumber + " with a stacktrace");
 
-					response.put("message", "Pull request created with reproduction tests!");
+						String message = handlePipeline(bodyVersionReference, repositoryName, repositoryURL, repositoryOwner, issueNumber,
+								bodyBuildType, bodyCrashLog, bodyProjectPath, bodyTargetFrame, bodyPopulation,
+								bodySearchBudget, bodyGlobalTimeout);
+
+						response.put("message", message);
+
+					} else {
+						response.put("message", "Received issue " + issueNumber + " without stacktrace");
+					}
 
 				} else if (action.equals("edited")) {
 
@@ -97,6 +105,7 @@ public class GitHubAppController {
 
 					// TODO: I could check if there is some change in the parameters that are used to run the reproduction
 
+					// TODO: add comment in the issue
 					response.put("message", "Issue action '"+action+"' is not a target.");
 
 				} else {
@@ -111,14 +120,17 @@ public class GitHubAppController {
 		return response;
 	}
 
-	public void handlePipeline(String branch, String repositoryName, String repositoryURL, String repositoryOwner,
-			String issueNumber, String crashLog, String pomPath, String targetFrame, String population, String searchBudget,
-			String globalTimeout) throws Exception {
+	public String handlePipeline(String branch, String repositoryName, String repositoryURL, String repositoryOwner,
+			String issueNumber, String buildType, String crashLog, String pomPath, String targetFrame,
+			String population, String searchBudget, String globalTimeout) throws Exception {
 
-		// checkout project from GitHub - src/main/java/eu/stamp/botsing/controller/GitHubAppController.java
+		log.info("Start pipeline for '" + repositoryName + "' due to issue " + issueNumber);
+
+		// clone project from GitHub
+		log.info("Cloning repository '" + repositoryName + "'");
 		File repoFolder = gitService.cloneRepository(repositoryURL);
 
-		// checkout branch of the push
+		// checkout branch
 		gitService.checkoutBranch(repoFolder, branch);
 
 		// move to the module to build
@@ -127,16 +139,27 @@ public class GitHubAppController {
 		}
 		File projectFolder = new File(repoFolder.getAbsolutePath() + "/"+ pomPath);
 
-		// compile project
-		MavenRunner.compileWithoutTests(projectFolder);
-
 		// create crashLog file
 		File crashLogFile = new File(projectFolder + "/crash.log");
 		FileUtils.writeStringToFile(crashLogFile, crashLog, Charset.defaultCharset());
 
-		// execute Botsing to reproduce stacktrace
-		MavenRunner.runBotsingReproduction(projectFolder, crashLogFile.getAbsolutePath(), targetFrame, population,
-				searchBudget, globalTimeout);
+
+		// compile project
+		if (buildType.equalsIgnoreCase("maven")) {
+			log.info("Compiling repository '" + repositoryName + "' with maven");
+			MavenRunner.compileWithoutTests(projectFolder);
+
+			// execute Botsing to reproduce stacktrace
+			log.info("Running Botsing");
+			MavenRunner.runBotsingReproduction(projectFolder, crashLogFile.getAbsolutePath(), targetFrame, population,
+					searchBudget, globalTimeout);
+
+		} else if (buildType.equalsIgnoreCase("gradle")) {
+			return "Build type '"+buildType+"' under development.";
+
+		} else {
+			return "Build type '"+buildType+"' not supported.";
+		}
 
 		// copy new test to src folder
 		File source = new File(projectFolder.getAbsolutePath() + "/crash-reproduction-tests");
@@ -145,20 +168,25 @@ public class GitHubAppController {
 		log.debug("New Tests added to source folder");
 
 		// create new branch
-		String newBranch = "botsing-reproduction-branch-" + issueNumber + "-" + System.currentTimeMillis();
+		String newBranch = "bug-reproduction-" + issueNumber + "-" + System.currentTimeMillis();
+		log.info("Creating branch '"+newBranch+"'");
 		gitService.createNewBranch(repoFolder, newBranch, true);
 
 		// commit new test
 		gitService.addFolder(repoFolder, "src");
-		gitService.commitAll(repoFolder, "Add reproduction test from issue "+issueNumber);
+		gitService.commitAll(repoFolder, "Add reproduction test from issue " + issueNumber);
 
 		// push
+		log.info("Pushing to '"+repositoryURL+"'");
 		gitService.push(repoFolder, newBranch);
 
 		// pull request from branch to master
-		githubService.createPullRequest(repositoryName, repositoryOwner, "Botsing reproduction",
-				"Botsing reproduction pull request from issue " + issueNumber + " on " + newBranch, newBranch,
+		log.info("Creating Pull Request on '"+repositoryName+"'");
+		githubService.createPullRequest(repositoryName, repositoryOwner, "Botsing reproduction from issue " + issueNumber,
+				"Botsing reproduction pull request from issue " + issueNumber + " on branch " + newBranch, newBranch,
 				"master");
+
+		return "Pull request created with reproduction test!";
 	}
 
 	private String getSectionFromBody(String sectionName, String body) {

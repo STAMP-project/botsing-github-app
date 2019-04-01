@@ -18,6 +18,7 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,8 @@ import eu.stamp.botsing.utility.ConfigurationBean;
 
 @Service
 public class JGitService {
-	UsernamePasswordCredentialsProvider upCredentialsProvider;
+
+	private CredentialsProvider credentialsProvider;
 
 	Logger log = LoggerFactory.getLogger(JGitService.class);
 
@@ -38,9 +40,13 @@ public class JGitService {
 	public JGitService(ConfigurationBean configuration) {
 		super();
 
-		if (configuration.getGithubUsername() != null && configuration.getGithubPassword() != null) {
+		if (configuration.getGithubOAuth2Token() != null ) {
+			credentialsProvider = new UsernamePasswordCredentialsProvider( configuration.getGithubOAuth2Token(), "" );
+
+		} else if (configuration.getGithubUsername() != null && configuration.getGithubPassword() != null) {
 			log.debug("Connecting to GitHub as: " + configuration.getGithubUsername());
-			upCredentialsProvider = new UsernamePasswordCredentialsProvider(configuration.getGithubUsername(),
+
+			credentialsProvider = new UsernamePasswordCredentialsProvider(configuration.getGithubUsername(),
 					configuration.getGithubPassword());
 
 		} else {
@@ -296,12 +302,11 @@ public class JGitService {
 		// CloneCommand, FetchCommand, LsRemoteCommand, PullCommand, PushCommand,
 		// SubmoduleAddCommand, SubmoduleUpdateCommand
 
-		if (upCredentialsProvider != null) {
-			command.setCredentialsProvider(upCredentialsProvider).call();
+		if (credentialsProvider != null) {
+			command.setCredentialsProvider(credentialsProvider).call();
+
 		} else {
 			command.call();
 		}
-
 	}
-
 }
