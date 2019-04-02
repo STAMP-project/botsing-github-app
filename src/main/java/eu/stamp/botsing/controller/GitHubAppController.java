@@ -42,7 +42,7 @@ public class GitHubAppController {
 
 	@RequestMapping("/test")
 	public String greeting() {
-		return "Test Rest Service";
+		return "This is the Botsing GitHub App Test Service. More informations can be found here: https://github.com/STAMP-project/botsing-github-app";
 	}
 
 	@PostMapping(value = "/botsing-github-app")
@@ -62,9 +62,7 @@ public class GitHubAppController {
 
 				if (action.equals("opened")) {
 					// get issue information
-					String issueStatus = jsonObject.get("issue").getAsJsonObject().get("state").getAsString();
 					String issueNumber = jsonObject.get("issue").getAsJsonObject().get("number").getAsString();
-					String issueTitle = jsonObject.get("issue").getAsJsonObject().get("title").getAsString();
 					String issueBody = jsonObject.get("issue").getAsJsonObject().get("body").getAsString();
 
 					log.info("Received new issue event " + issueNumber);
@@ -121,7 +119,7 @@ public class GitHubAppController {
 	}
 
 	public String handlePipeline(String branch, String repositoryName, String repositoryURL, String repositoryOwner,
-			String issueNumber, String buildType, String crashLog, String pomPath, String targetFrame,
+			String issueNumber, String buildType, String crashLog, String projectPath, String targetFrame,
 			String population, String searchBudget, String globalTimeout) throws Exception {
 
 		log.info("Start pipeline for '" + repositoryName + "' due to issue " + issueNumber);
@@ -134,15 +132,14 @@ public class GitHubAppController {
 		gitService.checkoutBranch(repoFolder, branch);
 
 		// move to the module to build
-		if (pomPath.endsWith("pom.xml")) {
-			pomPath = pomPath.substring(0, pomPath.length()-7);
+		if (projectPath.endsWith("pom.xml")) {
+			projectPath = projectPath.substring(0, projectPath.length()-7);
 		}
-		File projectFolder = new File(repoFolder.getAbsolutePath() + "/"+ pomPath);
+		File projectFolder = new File(repoFolder.getAbsolutePath() + File.separator + projectPath);
 
 		// create crashLog file
 		File crashLogFile = new File(projectFolder + "/crash.log");
 		FileUtils.writeStringToFile(crashLogFile, crashLog, Charset.defaultCharset());
-
 
 		// compile project
 		if (buildType.equalsIgnoreCase("maven")) {
@@ -151,8 +148,13 @@ public class GitHubAppController {
 
 			// execute Botsing to reproduce stacktrace
 			log.info("Running Botsing");
-			MavenRunner.runBotsingReproduction(projectFolder, crashLogFile.getAbsolutePath(), targetFrame, population,
+			boolean noErrors = MavenRunner.runBotsingReproduction(projectFolder, crashLogFile.getAbsolutePath(), targetFrame, population,
 					searchBudget, globalTimeout);
+
+			if (noErrors == false) {
+				log.error("Error running Botsing");
+				return "Error running Botsing";
+			}
 
 		} else if (buildType.equalsIgnoreCase("gradle")) {
 			return "Build type '"+buildType+"' under development.";
@@ -162,7 +164,7 @@ public class GitHubAppController {
 		}
 
 		// copy new test to src folder
-		File source = new File(projectFolder.getAbsolutePath() + "/crash-reproduction-tests");
+		File source = new File(projectFolder.getAbsolutePath() + File.separator + "crash-reproduction-tests");
 		File dest = new File(projectFolder.getAbsolutePath() + "/src/test/java/");
 		FileUtility.copyJavaFile(source, dest);
 		log.debug("New Tests added to source folder");
@@ -173,7 +175,7 @@ public class GitHubAppController {
 		gitService.createNewBranch(repoFolder, newBranch, true);
 
 		// commit new test
-		gitService.addFolder(repoFolder, "src");
+		gitService.addFolder(repoFolder, projectPath.length() > 0 ? projectPath + File.separator + "src" : "src");
 		gitService.commitAll(repoFolder, "Add reproduction test from issue " + issueNumber);
 
 		// push
