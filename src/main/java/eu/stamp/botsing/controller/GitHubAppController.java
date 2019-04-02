@@ -164,7 +164,7 @@ public class GitHubAppController {
 		// copy new test to src folder
 		File source = new File(projectFolder.getAbsolutePath() + "/crash-reproduction-tests");
 		File dest = new File(projectFolder.getAbsolutePath() + "/src/test/java/");
-		FileUtility.copyDirectory(source, dest);
+		FileUtility.copyJavaFile(source, dest);
 		log.debug("New Tests added to source folder");
 
 		// create new branch

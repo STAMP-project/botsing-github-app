@@ -1,5 +1,6 @@
 package eu.stamp.botsing.controller;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -22,11 +23,11 @@ import eu.stamp.botsing.service.JGitService;
 import eu.stamp.botsing.utility.ConfigurationBean;
 
 @RunWith(SpringRunner.class)
-//@WebMvcTest(value = GitHubAppController.class)
 @SpringBootTest(classes = { GitHubAppController.class, GitHubService.class, JGitService.class,
 		ConfigurationBean.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
 @EnableAutoConfiguration
 @AutoConfigureMockMvc
+@Ignore
 public class GitHubAppControllerITTest {
 
 	Logger log = LoggerFactory.getLogger(GitHubAppControllerITTest.class);

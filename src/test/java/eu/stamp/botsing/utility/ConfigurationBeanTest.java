@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {ConfigurationBean.class })
+@SpringBootTest(classes = { ConfigurationBean.class })
 public class ConfigurationBeanTest {
 
 	Logger log = LoggerFactory.getLogger(ConfigurationBeanTest.class);
@@ -18,9 +18,10 @@ public class ConfigurationBeanTest {
 	ConfigurationBean configuration;
 
 	@Test
-	public void checkNullProxy() {
+	public void checkConfigurationBeanIsCreated() {
 
 		Integer port = configuration.getProxyPort();
 		log.info("proxyPort: " + port);
+
 	}
 }

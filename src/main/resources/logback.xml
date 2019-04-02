@@ -19,7 +19,7 @@
 		</encoder>
 	</appender>
 
-	<logger name="eu.stamp_project" level="debug" additivity="false">
+	<logger name="eu.stamp.botsing" level="debug" additivity="false">
 		<appender-ref ref="FILE-AUDIT" />
 		<appender-ref ref="STDOUT" />
 	</logger>

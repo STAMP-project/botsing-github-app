@@ -2,10 +2,12 @@ package eu.stamp.botsing.runner;
 
 import java.io.File;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Ignore
 public class MavenRunnerTest {
 
 	Logger log = LoggerFactory.getLogger(MavenRunnerTest.class);

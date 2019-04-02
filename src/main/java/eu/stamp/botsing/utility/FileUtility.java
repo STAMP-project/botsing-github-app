@@ -12,7 +12,7 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 
 public class FileUtility {
 
-	public static void copyDirectory(File sourceFolder, File targetFolder) {
+	public static void copyJavaFile(File sourceFolder, File targetFolder) {
 
 		try {
 			// Create a filter for ".java" files
@@ -28,4 +28,5 @@ public class FileUtility {
 			e.printStackTrace();
 		}
 	}
+
 }
