@@ -65,8 +65,6 @@ public class GitHubAppController {
 					String issueNumber = jsonObject.get("issue").getAsJsonObject().get("number").getAsString();
 					String issueBody = jsonObject.get("issue").getAsJsonObject().get("body").getAsString();
 
-					log.info("Received new issue event " + issueNumber);
-
 					// get bug information from issue body
 					String bodyBuildType = getParamFromBody("buildType", issueBody);
 					String bodyProjectPath = getParamFromBody("projectPath", issueBody);
@@ -84,7 +82,7 @@ public class GitHubAppController {
 					String repositoryURL  = jsonObject.get("repository").getAsJsonObject().get("html_url").getAsString();
 					String repositoryOwner = jsonObject.get("repository").getAsJsonObject().get("owner").getAsJsonObject().get("login").getAsString();
 
-					if (bodyCrashLog.length()>0) {
+					if (bodyCrashLog.length() > 0) {
 						log.info("Received issue " + issueNumber + " with a stacktrace");
 
 						String message = handlePipeline(bodyVersionReference, repositoryName, repositoryURL, repositoryOwner, issueNumber,
@@ -94,7 +92,7 @@ public class GitHubAppController {
 						response.put("message", message);
 
 					} else {
-						response.put("message", "Received issue " + issueNumber + " without stacktrace");
+						response.put("message", "Received issue " + issueNumber + " without stacktrace, issue will be ignored.");
 					}
 
 				} else if (action.equals("edited")) {
@@ -104,11 +102,14 @@ public class GitHubAppController {
 					// TODO: I could check if there is some change in the parameters that are used to run the reproduction
 
 					// TODO: add comment in the issue
-					response.put("message", "Issue action '"+action+"' is not a target.");
+					response.put("message", "Issue action '"+action+"' is not supported.");
 
 				} else {
-					response.put("message", "Issue action '"+action+"' is not a target.");
+					response.put("message", "Issue action '"+action+"' is not supported.");
 				}
+
+			} else {
+				response.put("message", "Event '" + eventType + "' is not supported.");
 			}
 
 		} catch (Exception e) {
@@ -184,9 +185,13 @@ public class GitHubAppController {
 
 		// pull request from branch to master
 		log.info("Creating Pull Request on '"+repositoryName+"'");
-		githubService.createPullRequest(repositoryName, repositoryOwner, "Botsing reproduction from issue " + issueNumber,
+		String url = githubService.createPullRequest(repositoryName, repositoryOwner, "Botsing reproduction from issue " + issueNumber,
 				"Botsing reproduction pull request from issue " + issueNumber + " on branch " + newBranch, newBranch,
 				"master");
+
+		// Add comment to the issue to link the pull request
+		githubService.createIssueComment(repositoryName, repositoryOwner, issueNumber,
+				"Created Botsing reproduction pull request from issue. Pull Request can be accessed from: " + url);
 
 		return "Pull request created with reproduction test!";
 	}

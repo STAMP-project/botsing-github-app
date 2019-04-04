@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 import java.io.IOException;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -18,8 +17,7 @@ import eu.stamp.botsing.utility.ConfigurationBean;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { GitHubService.class, ConfigurationBean.class })
-@Ignore
-public class GitHubServiceTest {
+public class GitHubServiceTestIT {
 
 	/**
 	 * TODO this test suite changes the remote repository used, this is not good.
@@ -28,7 +26,7 @@ public class GitHubServiceTest {
 	 * For now this test suite is DISABLED
 	 */
 
-	Logger log = LoggerFactory.getLogger(GitHubServiceTest.class);
+	Logger log = LoggerFactory.getLogger(GitHubServiceTestIT.class);
 
 	@Autowired
 	GitHubService service;

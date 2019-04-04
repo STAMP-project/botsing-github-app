@@ -1,6 +1,5 @@
 package eu.stamp.botsing.controller;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -27,10 +26,9 @@ import eu.stamp.botsing.utility.ConfigurationBean;
 		ConfigurationBean.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
 @EnableAutoConfiguration
 @AutoConfigureMockMvc
-@Ignore
-public class GitHubAppControllerITTest {
+public class GitHubAppControllerTestIT {
 
-	Logger log = LoggerFactory.getLogger(GitHubAppControllerITTest.class);
+	Logger log = LoggerFactory.getLogger(GitHubAppControllerTestIT.class);
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -50,11 +48,7 @@ public class GitHubAppControllerITTest {
 		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
 		MockHttpServletResponse response = result.getResponse();
-
-		//JSONAssert.assertEquals(HttpStatus.CREATED.value(), response.getStatus());
-
-		//JSONAssert.assertEquals("http://localhost/students/Student1/courses/1",
-		//		response.getHeader(HttpHeaders.LOCATION));
+		log.info(response.getContentAsString());
 	}
 
 	@Test
@@ -63,16 +57,12 @@ public class GitHubAppControllerITTest {
 		RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/botsing-github-app")
 				.header("X-GitHub-Event", "push")
 				.accept(MediaType.APPLICATION_JSON)
-				//.content(issueEditedJson)
+				.content(issueEditedWrongTemplateJson)
 				.contentType(MediaType.APPLICATION_JSON);
 
 		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
 		MockHttpServletResponse response = result.getResponse();
-
-		//JSONAssert.assertEquals(HttpStatus.CREATED.value(), response.getStatus());
-
-		//JSONAssert.assertEquals("http://localhost/students/Student1/courses/1",
-		//		response.getHeader(HttpHeaders.LOCATION));
+		log.info(response.getContentAsString());
 	}
 }

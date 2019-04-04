@@ -12,7 +12,6 @@ import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -27,8 +26,7 @@ import eu.stamp.botsing.utility.ConfigurationBean;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { JGitService.class, ConfigurationBean.class })
-@Ignore
-public class JGitServiceTest {
+public class JGitServiceTestIT {
 
 	/**
 	 * TODO this test suite changes the remote repository used, this is not good.
@@ -37,7 +35,7 @@ public class JGitServiceTest {
 	 * For now this test suite is DISABLED
 	 */
 
-	Logger log = LoggerFactory.getLogger(JGitServiceTest.class);
+	Logger log = LoggerFactory.getLogger(JGitServiceTestIT.class);
 
 	@Autowired
 	JGitService service;

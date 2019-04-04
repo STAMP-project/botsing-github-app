@@ -49,7 +49,7 @@ public class GitHubService {
 		}
 	}
 
-	public void createPullRequest(String repositoryName, String repositoryOwner, String pullRequestTitle,
+	public String createPullRequest(String repositoryName, String repositoryOwner, String pullRequestTitle,
 			String pullRequestBody, String branchSource, String branchDestination) throws IOException {
 		log.debug("Creating pull request");
 
@@ -65,8 +65,10 @@ public class GitHubService {
 		request.setHead(new PullRequestMarker().setRef(branchSource).setLabel(branchSource));
 		request.setBase(new PullRequestMarker().setRef(branchDestination).setLabel(branchDestination));
 
-		service.createPullRequest(repository, request);
-		log.debug("Pull request created");
+		PullRequest pr = service.createPullRequest(repository, request);
+		log.debug("Pull request '" + pr.getId() + "' created");
+
+		return pr.getHtmlUrl();
 	}
 
 	public String getIssueBody(String repositoryName, String repositoryOwner, String issueNumber) throws IOException {
