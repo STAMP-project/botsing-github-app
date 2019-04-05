@@ -22,7 +22,6 @@ import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.io.Files;
@@ -36,7 +35,6 @@ public class JGitService {
 
 	Logger log = LoggerFactory.getLogger(JGitService.class);
 
-	@Autowired
 	public JGitService(ConfigurationBean configuration) {
 		super();
 

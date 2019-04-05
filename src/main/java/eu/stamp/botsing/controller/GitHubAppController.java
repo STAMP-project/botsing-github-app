@@ -50,6 +50,8 @@ public class GitHubAppController {
 			@RequestHeader(value = "X-GitHub-Event", defaultValue = "") String eventType) {
 		HashMap<String, String> response = new HashMap<>();
 
+		// TODO use HTTP 400 Bad Request if mandatory parameters are missing
+
 		try {
 			log.debug("'" + eventType + "' Event received");
 

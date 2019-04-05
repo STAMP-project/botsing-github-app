@@ -11,15 +11,22 @@ public class MavenRunner {
 
 	static Logger log = LoggerFactory.getLogger(MavenRunner.class);
 
-	public static void compileWithoutTests(File projectFolder) throws IOException {
+	public static boolean compileWithoutTests(File projectFolder) throws IOException {
 		log.debug("Compiling project with Maven");
 
 		try {
-			executeProcess(projectFolder, "mvn", "clean", "compile", "-DskipTests");
+			int exitCode = executeProcess(projectFolder, "mvn", "clean", "compile", "-DskipTests");
+
+			if (exitCode != 0) {
+				return false;
+			}
+
 			log.debug("Project compiled with Maven");
+			return true;
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			return false;
 		}
 	}
 
