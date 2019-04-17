@@ -1,0 +1,24 @@
+---
+name: Bug report
+about: Create a report to help us improve
+title: ''
+labels: bug
+assignees: ''
+
+---
+
+#### Characteristics
+- **Issue Type**: [bug, feature, test report]
+- **Reproducibility**: [always, sometimes, random]
+- **Severity**: [feature, minor, major, crash, block]
+- **Tool/Service/Component**: [name, version]
+- **Execution Environment**: [platform, OS, etc]
+- **Reporter**: [name, mail]
+
+#### Description
+
+#### Steps to reproduce
+
+#### Other files and URLs
+
+#### Relationships
