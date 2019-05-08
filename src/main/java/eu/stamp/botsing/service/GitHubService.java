@@ -1,15 +1,23 @@
 package eu.stamp.botsing.service;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Base64;
+import java.util.List;
 
 import org.eclipse.egit.github.core.Comment;
 import org.eclipse.egit.github.core.Issue;
 import org.eclipse.egit.github.core.PullRequest;
 import org.eclipse.egit.github.core.PullRequestMarker;
 import org.eclipse.egit.github.core.Repository;
+import org.eclipse.egit.github.core.RepositoryContents;
 import org.eclipse.egit.github.core.client.GitHubClient;
+import org.eclipse.egit.github.core.client.RequestException;
+import org.eclipse.egit.github.core.service.ContentsService;
 import org.eclipse.egit.github.core.service.IssueService;
 import org.eclipse.egit.github.core.service.PullRequestService;
 import org.eclipse.egit.github.core.service.RepositoryService;
@@ -71,6 +79,38 @@ public class GitHubService {
 		return pr.getHtmlUrl();
 	}
 
+	public String getRawFile(String repositoryName, String repositoryOwner, String filePath) throws IOException {
+		log.debug("Reading file '" + filePath + "'");
+		String result = null;
+
+		RepositoryService repoService = new RepositoryService(client);
+		Repository repository = repoService.getRepository(repositoryOwner, repositoryName);
+
+		ContentsService contentsService = new ContentsService(client);
+
+		try {
+			List<RepositoryContents> contents = contentsService.getContents(repository, filePath);
+
+			for (RepositoryContents c : contents) {
+
+				byte[] out = Base64.getDecoder().decode(c.getContent().replaceAll("\n", ""));
+				result = new String(out);
+			}
+
+			log.debug("File '" + filePath + "' read");
+
+		} catch (RequestException e) {
+
+			if (e.getStatus() == 404) {
+				log.debug("File not found.");
+			} else {
+				throw e;
+			}
+		}
+
+		return result;
+	}
+
 	public String getIssueBody(String repositoryName, String repositoryOwner, String issueNumber) throws IOException {
 		log.debug("Reading issue");
 		String result = null;
@@ -86,7 +126,18 @@ public class GitHubService {
 
 	public String createIssueComment(String repositoryName, String repositoryOwner, String issueNumber, String comment)
 			throws IOException {
-		log.debug("Creating new issue comment");
+
+		IssueService issueService = new IssueService(client);
+		Comment issueComment = issueService.createComment(repositoryOwner, repositoryName, issueNumber, comment);
+
+		return issueComment.getBody();
+	}
+
+	public String createIssueCommentWithFile(String repositoryName, String repositoryOwner, String issueNumber, File file)
+			throws IOException {
+		log.debug("Creating new issue comment with file");
+
+		String comment = new String(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
 
 		IssueService issueService = new IssueService(client);
 		Comment issueComment = issueService.createComment(repositoryOwner, repositoryName, issueNumber, comment);

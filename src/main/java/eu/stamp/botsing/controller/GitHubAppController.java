@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.io.Files;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -26,7 +29,6 @@ import com.google.gson.JsonParser;
 
 import eu.stamp.botsing.runner.MavenRunner;
 import eu.stamp.botsing.service.GitHubService;
-import eu.stamp.botsing.service.JGitService;
 import eu.stamp.botsing.utility.FileUtility;
 
 @RestController
@@ -34,11 +36,28 @@ public class GitHubAppController {
 
 	Logger log = LoggerFactory.getLogger(GitHubAppController.class);
 
-	@Autowired
-	private JGitService gitService;
+	private final String BOTSING_FILE = ".botsing";
+	private final String GROUP_ID = "group_id";
+	private final String ARTIFACT_ID = "artifact_id";
+	private final String VERSION = "version";
+	private final String SEARCH_BUDGET = "search_budget";
+	private final String GLOBAL_TIMEOUT = "global_timeout";
+	private final String POPULATION = "population";
+	private final String MAX_TARGET_FRAME = "max_target_frame";
 
 	@Autowired
 	private GitHubService githubService;
+
+	public static final String POM_FOR_BOTSING = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
+			"    <modelVersion>4.0.0</modelVersion>\n" +
+			"    <groupId>eu.stamp-project</groupId>\n" +
+			"    <artifactId>botsing-maven-working-project</artifactId>\n" +
+			"    <version>1.0.0-SNAPSHOT</version>\n" +
+			"    <packaging>pom</packaging>\n" +
+			"    <name>Project to run Botsing Maven</name>\n" +
+			"    <description>Project to run botsing-maven.</description>\n" +
+			"</project>";
 
 	@RequestMapping("/test")
 	public String greeting() {
@@ -63,33 +82,24 @@ public class GitHubAppController {
 				String action = jsonObject.get("action").getAsString();
 
 				if (action.equals("opened")) {
-					// get issue information
-					String issueNumber = jsonObject.get("issue").getAsJsonObject().get("number").getAsString();
-					String issueBody = jsonObject.get("issue").getAsJsonObject().get("body").getAsString();
-
-					// get bug information from issue body
-					String bodyBuildType = getParamFromBody("buildType", issueBody);
-					String bodyProjectPath = getParamFromBody("projectPath", issueBody);
-					String bodyVersionReference = getParamFromBody("versionReference", issueBody);
-
-					String bodyTargetFrame = getParamFromBody("targetFrame", issueBody);
-					String bodyPopulation = getParamFromBody("population", issueBody);
-					String bodySearchBudget = getParamFromBody("search_budget", issueBody);
-					String bodyGlobalTimeout = getParamFromBody("global_timeout", issueBody);
-
-					String bodyCrashLog = getSectionFromBody("crashLog", issueBody);
 
 					// get repository information
 					String repositoryName = jsonObject.get("repository").getAsJsonObject().get("name").getAsString();
 					String repositoryURL  = jsonObject.get("repository").getAsJsonObject().get("html_url").getAsString();
 					String repositoryOwner = jsonObject.get("repository").getAsJsonObject().get("owner").getAsJsonObject().get("login").getAsString();
 
-					if (bodyCrashLog.length() > 0) {
-						log.info("Received issue " + issueNumber + " with a stacktrace");
+					// get issue information
+					String issueNumber = jsonObject.get("issue").getAsJsonObject().get("number").getAsString();
+					String issueBody = jsonObject.get("issue").getAsJsonObject().get("body").getAsString();
 
-						String message = handlePipeline(bodyVersionReference, repositoryName, repositoryURL, repositoryOwner, issueNumber,
-								bodyBuildType, bodyCrashLog, bodyProjectPath, bodyTargetFrame, bodyPopulation,
-								bodySearchBudget, bodyGlobalTimeout);
+					// read .botsing file
+					String botsingFile = githubService.getRawFile(repositoryName, repositoryOwner, BOTSING_FILE);
+					Properties botsingProperties = FileUtility.parsePropertiesString(botsingFile);
+
+					if (issueBody.length() > 0) {
+						log.debug("Received issue " + issueNumber + " with a stacktrace");
+
+						String message = runBotsingAsExternalProcess(issueBody, issueNumber, botsingProperties, repositoryName, repositoryURL, repositoryOwner);
 
 						response.put("message", message);
 
@@ -99,11 +109,10 @@ public class GitHubAppController {
 
 				} else if (action.equals("edited")) {
 
-					JsonObject changes = jsonObject.get("changes").getAsJsonObject();
+//					JsonObject changes = jsonObject.get("changes").getAsJsonObject();
 
 					// TODO: I could check if there is some change in the parameters that are used to run the reproduction
 
-					// TODO: add comment in the issue
 					response.put("message", "Issue action '"+action+"' is not supported.");
 
 				} else {
@@ -121,110 +130,64 @@ public class GitHubAppController {
 		return response;
 	}
 
-	public String handlePipeline(String branch, String repositoryName, String repositoryURL, String repositoryOwner,
-			String issueNumber, String buildType, String crashLog, String projectPath, String targetFrame,
-			String population, String searchBudget, String globalTimeout) throws Exception {
+	public String runBotsingAsExternalProcess(String crashLog, String issueNumber, Properties botsingProperties,
+			String repositoryName, String repositoryURL, String repositoryOwner) throws IOException {
+		String result = null;
 
-		log.info("Start pipeline for '" + repositoryName + "' due to issue " + issueNumber);
+		log.info("Reading Botsing properties for issue " + issueNumber);
 
-		// clone project from GitHub
-		log.info("Cloning repository '" + repositoryName + "'");
-		File repoFolder = gitService.cloneRepository(repositoryURL);
+		// prepare folder
+		File workingDir = Files.createTempDir();
 
-		// checkout branch
-		gitService.checkoutBranch(repoFolder, branch);
-
-		// move to the module to build
-		if (projectPath.endsWith("pom.xml")) {
-			projectPath = projectPath.substring(0, projectPath.length()-7);
-		}
-		File projectFolder = new File(repoFolder.getAbsolutePath() + File.separator + projectPath);
+		// create dummy pom file
+		File pomFile = new File(workingDir + (File.separator + "pom.xml"));
+		FileUtils.writeStringToFile(pomFile, POM_FOR_BOTSING, Charset.defaultCharset());
 
 		// create crashLog file
-		File crashLogFile = new File(projectFolder + "/crash.log");
+		File crashLogFile = new File(workingDir + (File.separator + "crash.log"));
 		FileUtils.writeStringToFile(crashLogFile, crashLog, Charset.defaultCharset());
 
-		// compile project
-		if (buildType.equalsIgnoreCase("maven")) {
-			log.info("Compiling repository '" + repositoryName + "' with maven");
-			MavenRunner.compileWithoutTests(projectFolder);
+		// read properties from .botsing file
+		String groupId = botsingProperties.getProperty(GROUP_ID);
+		String artifactId = botsingProperties.getProperty(ARTIFACT_ID);
+		String version = botsingProperties.getProperty(VERSION);
+		String searchBudget = botsingProperties.getProperty(SEARCH_BUDGET);
+		String globalTimeout = botsingProperties.getProperty(GLOBAL_TIMEOUT);
+		String population = botsingProperties.getProperty(POPULATION);
+		String maxTargetFrame = botsingProperties.getProperty(MAX_TARGET_FRAME);
 
-			// execute Botsing to reproduce stacktrace
-			log.info("Running Botsing");
-			boolean noErrors = MavenRunner.runBotsingReproduction(projectFolder, crashLogFile.getAbsolutePath(), targetFrame, population,
-					searchBudget, globalTimeout);
+		// run Botsing
+		log.info("Running Botsing on " + workingDir.getAbsolutePath());
+		boolean noErrors = MavenRunner.runBotsingReproductionWithMaxTargetFrame(workingDir,
+				crashLogFile.getAbsolutePath(), groupId, artifactId, version, maxTargetFrame, population, searchBudget,
+				globalTimeout);
 
-			if (noErrors == false) {
-				log.error("Error running Botsing");
-				return "Error running Botsing";
-			}
-
-		} else if (buildType.equalsIgnoreCase("gradle")) {
-			return "Build type '"+buildType+"' under development.";
+		if (noErrors == false) {
+			result = "Error executing Botsing";
+			githubService.createIssueComment(repositoryName, repositoryOwner, issueNumber, result);
 
 		} else {
-			return "Build type '"+buildType+"' not supported.";
-		}
 
-		// copy new test to src folder
-		File source = new File(projectFolder.getAbsolutePath() + File.separator + "crash-reproduction-tests");
-		File dest = new File(projectFolder.getAbsolutePath() + "/src/test/java/");
-		FileUtility.copyJavaFile(source, dest);
-		log.debug("New Tests added to source folder");
+			// get generated file as string
+			Collection<File> testFiles = FileUtility.search(workingDir.getAbsolutePath(),
+					".*EvoSuite did not generate any tests.*", new String[] { "java" });
 
-		// create new branch
-		String newBranch = "bug-reproduction-" + issueNumber + "-" + System.currentTimeMillis();
-		log.info("Creating branch '"+newBranch+"'");
-		gitService.createNewBranch(repoFolder, newBranch, true);
+			if (testFiles != null) {
+				result = "Botsing executed succesfully with reproduction test.";
 
-		// commit new test
-		gitService.addFolder(repoFolder, projectPath.length() > 0 ? projectPath + File.separator + "src" : "src");
-		gitService.commitAll(repoFolder, "Add reproduction test from issue " + issueNumber);
+				githubService.createIssueComment(repositoryName, repositoryOwner, issueNumber,
+						"Botsing generate the following reproduction test.");
 
-		// push
-		log.info("Pushing to '"+repositoryURL+"'");
-		gitService.push(repoFolder, newBranch);
+				for (File test : testFiles) {
+					// Add comment to the issue with the test
+					githubService.createIssueCommentWithFile(repositoryName, repositoryOwner, issueNumber, test);
+				}
 
-		// pull request from branch to master
-		log.info("Creating Pull Request on '"+repositoryName+"'");
-		String url = githubService.createPullRequest(repositoryName, repositoryOwner, "Botsing reproduction from issue " + issueNumber,
-				"Botsing reproduction pull request from issue " + issueNumber + " on branch " + newBranch, newBranch,
-				"master");
+			} else {
 
-		// Add comment to the issue to link the pull request
-		githubService.createIssueComment(repositoryName, repositoryOwner, issueNumber,
-				"Created Botsing reproduction pull request from issue. Pull Request can be accessed from: " + url);
-
-		return "Pull request created with reproduction test!";
-	}
-
-	private String getSectionFromBody(String sectionName, String body) {
-		String result = null;
-
-		String start = "#### " + sectionName;
-		String end = "####";
-
-		if (body.indexOf(start) > 0) {
-			result = body.substring(body.indexOf(start) + start.length());
-			if (result.indexOf(end) > 0) {
-				result = result.substring(0, result.indexOf(end));
+				result = "Botsing did not generate any reproduction test.";
+				githubService.createIssueComment(repositoryName, repositoryOwner, issueNumber, result);
 			}
-			result = result.trim();
-		}
-
-		return result;
-	}
-
-	private String getParamFromBody(String paramName, String body) {
-		String result = null;
-
-		String start = "- **" + paramName + "**:";
-		String end = "\n";
-
-		if (body.indexOf(start) > 0) {
-			result = body.substring(body.indexOf(start) + start.length());
-			result = result.substring(0, result.indexOf(end));
-			result = result.trim();
 		}
 
 		return result;

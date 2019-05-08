@@ -38,6 +38,24 @@ public class GitHubServiceTestIT {
 	}
 
 	@Test
+	public void shouldGetPomFileTest() throws IOException {
+		String pom = service.getRawFile(repoName, owner, "pom.xml");
+		assertNotNull(pom);
+	}
+
+	@Test
+	public void shouldReturnNullFileTest() throws IOException {
+		String nullfile = service.getRawFile(repoName, owner, "notexistingFile");
+		assert(nullfile == null);
+	}
+
+	@Test
+	public void getRawFileTest() throws IOException {
+		String pom = service.getRawFile(repoName, owner, "pom.xml");
+		assertNotNull(pom);
+	}
+
+	@Test
 	public void createPullRequestTest() throws IOException {
 		service.createPullRequest(repoName, owner, "Pull request title", "Pull request body", "nuovo-branch", "master");
 	}
