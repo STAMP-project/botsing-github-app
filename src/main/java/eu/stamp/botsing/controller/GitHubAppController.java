@@ -94,17 +94,27 @@ public class GitHubAppController {
 
 					// read .botsing file
 					String botsingFile = githubService.getRawFile(repositoryName, repositoryOwner, BOTSING_FILE);
-					Properties botsingProperties = FileUtility.parsePropertiesString(botsingFile);
 
-					if (issueBody.length() > 0) {
-						log.debug("Received issue " + issueNumber + " with a stacktrace");
-
-						String message = runBotsingAsExternalProcess(issueBody, issueNumber, botsingProperties, repositoryName, repositoryURL, repositoryOwner);
-
-						response.put("message", message);
+					if (botsingFile == null) {
+						response.put("message", ".botsing file not found");
 
 					} else {
-						response.put("message", "Received issue " + issueNumber + " without stacktrace, issue will be ignored.");
+
+						// read botsing properties
+						Properties botsingProperties = FileUtility.parsePropertiesString(botsingFile);
+
+						if (issueBody.length() > 0) {
+							// TODO find a way to understand if this issue is a stacktrace that can be used by botsing
+
+							log.debug("Received issue " + issueNumber + " with a stacktrace");
+
+							String message = runBotsingAsExternalProcess(issueBody, issueNumber, botsingProperties, repositoryName, repositoryURL, repositoryOwner);
+
+							response.put("message", message);
+
+						} else {
+							response.put("message", "Received issue " + issueNumber + " without stacktrace, issue will be ignored.");
+						}
 					}
 
 				} else if (action.equals("edited")) {
@@ -155,6 +165,10 @@ public class GitHubAppController {
 		String globalTimeout = botsingProperties.getProperty(GLOBAL_TIMEOUT);
 		String population = botsingProperties.getProperty(POPULATION);
 		String maxTargetFrame = botsingProperties.getProperty(MAX_TARGET_FRAME);
+
+		// add a comment before running botsing
+		githubService.createIssueComment(repositoryName, repositoryOwner, issueNumber,
+				"Start Botsing on artifact " + groupId + ":" + artifactId + ":" + version + " to reproduce the stacktrace in the issue.");
 
 		// run Botsing
 		log.info("Running Botsing on " + workingDir.getAbsolutePath());
