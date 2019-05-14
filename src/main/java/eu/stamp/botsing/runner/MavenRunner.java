@@ -16,18 +16,19 @@ public class MavenRunner {
 
 	public static boolean runBotsingReproductionWithMaxTargetFrame(File workingDir, String crashLogFile, String groupId,
 			String artifactId, String version, String maxTargetFrame, String population, String searchBudget,
-			String globalTimeout) throws IOException {
+			String globalTimeout, String packageFilter) throws IOException {
 
 		try {
 			// mandatory parameters
 			List<String> command = new ArrayList<String>(Arrays.asList("mvn",
-					"eu.stamp-project:botsing-maven:botsing", "-Dcrash_log=" + crashLogFile,
+					"eu.stamp-project:botsing-maven:1.0.6-SNAPSHOT:botsing", "-Dcrash_log=" + crashLogFile,
 					"-Dgroup_id=" + groupId, "-Dartifact_id=" + artifactId, "-Dversion=" + version));
 
 			// optional parameters
 			addOptionaParameter("search_budget", searchBudget, command);
 			addOptionaParameter("global_timeout", globalTimeout, command);
 			addOptionaParameter("population", population, command);
+			addOptionaParameter("package_filter", population, command);
 
 			int exitCode = executeProcess(workingDir, command);
 

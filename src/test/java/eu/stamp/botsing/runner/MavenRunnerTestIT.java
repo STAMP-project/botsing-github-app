@@ -43,6 +43,7 @@ public class MavenRunnerTestIT {
 	private final String population="100";
 	private final String searchBudget="60";
 	private final String globalTimeout="90";
+	private final String packageFilter="org.ow2.authzforce";
 
 	@Rule
 	public TemporaryFolder tmpFolder = new TemporaryFolder();
@@ -61,7 +62,7 @@ public class MavenRunnerTestIT {
 		FileUtils.writeStringToFile(crashLogFile, crashLog, Charset.defaultCharset());
 
 		boolean  runnedWithoutErrors = MavenRunner.runBotsingReproductionWithMaxTargetFrame(workingDir, crashLogFile.getAbsolutePath(), groupId, artifactId,
-				version, null, population, searchBudget, globalTimeout);
+				version, null, population, searchBudget, globalTimeout, packageFilter);
 
 		assert(runnedWithoutErrors);
 	}

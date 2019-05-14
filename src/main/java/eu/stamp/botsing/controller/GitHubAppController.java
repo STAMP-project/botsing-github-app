@@ -44,6 +44,7 @@ public class GitHubAppController {
 	private final String GLOBAL_TIMEOUT = "global_timeout";
 	private final String POPULATION = "population";
 	private final String MAX_TARGET_FRAME = "max_target_frame";
+	private final String PACKAGE_FILTER = "package_filter";
 
 	@Autowired
 	private GitHubService githubService;
@@ -165,6 +166,7 @@ public class GitHubAppController {
 		String globalTimeout = botsingProperties.getProperty(GLOBAL_TIMEOUT);
 		String population = botsingProperties.getProperty(POPULATION);
 		String maxTargetFrame = botsingProperties.getProperty(MAX_TARGET_FRAME);
+		String packageFilter = botsingProperties.getProperty(PACKAGE_FILTER);
 
 		// add a comment before running botsing
 		githubService.createIssueComment(repositoryName, repositoryOwner, issueNumber,
@@ -174,7 +176,7 @@ public class GitHubAppController {
 		log.info("Running Botsing on " + workingDir.getAbsolutePath());
 		boolean noErrors = MavenRunner.runBotsingReproductionWithMaxTargetFrame(workingDir,
 				crashLogFile.getAbsolutePath(), groupId, artifactId, version, maxTargetFrame, population, searchBudget,
-				globalTimeout);
+				globalTimeout, packageFilter);
 
 		if (noErrors == false) {
 			result = "Error executing Botsing";
