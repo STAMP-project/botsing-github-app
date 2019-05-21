@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import eu.stamp.botsing.controller.GitHubAppController;
+import eu.stamp.botsing.controller.utils.Constants;
 import eu.stamp.botsing.utility.ConfigurationBeanForIntegrationTests;
 
 @RunWith(SpringRunner.class)
@@ -55,7 +56,7 @@ public class MavenRunnerTestIT {
 
 		// create dummy pom file
 		File pomFile = new File(workingDir + (File.separator + "pom.xml"));
-		FileUtils.writeStringToFile(pomFile, GitHubAppController.POM_FOR_BOTSING, Charset.defaultCharset());
+		FileUtils.writeStringToFile(pomFile, Constants.POM_FOR_BOTSING, Charset.defaultCharset());
 
 		// create crashLog file
 		File crashLogFile = new File(workingDir + (File.pathSeparatorChar + "crash.log"));
