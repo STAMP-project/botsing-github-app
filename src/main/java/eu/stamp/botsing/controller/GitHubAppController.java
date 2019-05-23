@@ -10,27 +10,23 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 import eu.stamp.botsing.controller.worker.GitHubAppWorker;
-import eu.stamp.botsing.controller.worker.GitHubAppWorkerFactory;
+import eu.stamp.botsing.controller.worker.WorkerFactory;
 
 @RestController
 public class GitHubAppController {
 
 	Logger log = LoggerFactory.getLogger(GitHubAppController.class);
 
-	@Autowired
-	private GitHubAppWorkerFactory workerFactory;
+	@Autowired 
+	@Qualifier ("queueFactory")
+	private WorkerFactory workerFactory;
 
 
 

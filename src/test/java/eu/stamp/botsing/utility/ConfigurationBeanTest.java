@@ -19,7 +19,6 @@ public class ConfigurationBeanTest {
 
 	@Test
 	public void checkConfigurationBeanIsCreated() {
-
 		Integer port = configuration.getProxyPort();
 		log.info("proxyPort: " + port);
 

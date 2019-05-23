@@ -17,12 +17,16 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import eu.stamp.botsing.controller.worker.GitHubAppWorkerFactory;
+import eu.stamp.botsing.controller.worker.queues.GitHubAppWorkerQueueFactory;
+import eu.stamp.botsing.controller.worker.queues.GitHubAppWorkerSubscriber;
+import eu.stamp.botsing.controller.worker.queues.QueueManager;
 import eu.stamp.botsing.service.GitHubService;
 import eu.stamp.botsing.utility.ConfigurationBean;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { GitHubAppController.class, GitHubService.class,
-		ConfigurationBean.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = { GitHubAppController.class,GitHubAppWorkerFactory.class, GitHubAppWorkerQueueFactory.class, QueueManager.class, GitHubAppWorkerSubscriber.class,
+		 ConfigurationBean.class, GitHubService.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
 @EnableAutoConfiguration
 @AutoConfigureMockMvc
 public class GitHubAppControllerTestIT {
@@ -37,6 +41,7 @@ public class GitHubAppControllerTestIT {
 
 	@Test
 	public void mockIssueOpened() throws Exception {
+
 
 		RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/botsing-github-app")
 				.header("X-GitHub-Event", "issues")

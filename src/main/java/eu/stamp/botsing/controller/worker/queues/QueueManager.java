@@ -33,6 +33,7 @@ public class QueueManager
 		this.rxConnection = connectionFactory.createConnection();
 		this.rxConnection.start();
 		this.txSession = this.txConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		this.rxSession = this.rxConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		Destination txDestination = this.txSession.createQueue(QUEUE_NAME);
 		this.producer = this.txSession.createProducer(txDestination);
 		this.producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);

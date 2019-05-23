@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import eu.stamp.botsing.controller.GitHubAppController;
 import eu.stamp.botsing.controller.utils.Constants;
 import eu.stamp.botsing.utility.ConfigurationBeanForIntegrationTests;
 
@@ -51,6 +50,7 @@ public class MavenRunnerTestIT {
 
 	@Test
 	public void runBotsingReproductionTest() throws IOException {
+		System.out.println("SONO QUI*************************************");
 
 		File workingDir = tmpFolder.newFolder();
 

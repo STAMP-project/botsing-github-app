@@ -11,7 +11,8 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.stereotype.Component;
 
 import com.google.common.io.Files;
 import com.google.gson.JsonObject;
@@ -21,6 +22,8 @@ import eu.stamp.botsing.runner.MavenRunner;
 import eu.stamp.botsing.service.GitHubService;
 import eu.stamp.botsing.utility.FileUtility;
 
+@Configurable
+@Component
 public class GitHubAppWorkerOpened  implements GitHubAppWorker{
 
 	Logger log = LoggerFactory.getLogger(GitHubAppWorkerOpened.class);;
@@ -37,8 +40,16 @@ public class GitHubAppWorkerOpened  implements GitHubAppWorker{
 	private final String PACKAGE_FILTER = "package_filter";
 	private JsonObject jsonObject;
 	
-	@Autowired
+
+	
+	
 	private GitHubService githubService;
+
+	public GitHubAppWorkerOpened(GitHubService service) 
+	{
+		this.githubService = service;
+	}
+	
 	
 	@Override
 	public Map<String, String> getPullRequest () throws Exception

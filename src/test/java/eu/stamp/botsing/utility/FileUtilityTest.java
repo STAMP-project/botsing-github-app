@@ -22,6 +22,7 @@ public class FileUtilityTest {
 	@Test
 	public void copyFolderTest() throws IOException {
 
+
 		File source = tmpFolder.newFolder();
 		File dest = tmpFolder.newFolder();
 
