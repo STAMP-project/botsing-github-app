@@ -2,8 +2,6 @@ package eu.stamp.botsing.controller;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -11,12 +9,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.gson.JsonObject;
+
+import eu.stamp.botsing.controller.utils.JsonMethods;
 import eu.stamp.botsing.controller.worker.GitHubAppWorker;
+import eu.stamp.botsing.controller.worker.ResponseBean;
 import eu.stamp.botsing.controller.worker.WorkerFactory;
 
 @RestController
@@ -36,20 +40,17 @@ public class GitHubAppController {
 	}
 
 	@PostMapping(value = "/botsing-github-app")
-	public Map<String, String> getPullRequestFullBody(HttpServletRequest request,
+	public ResponseEntity<String> getPullRequestFullBody(HttpServletRequest request,
 			@RequestHeader(value = "X-GitHub-Event", defaultValue = "") String eventType) {
 
 
 		// TODO use HTTP 400 Bad Request if mandatory parameters are missing
 
-		Map<String, String> response = null;
+		ResponseEntity<String> response = null;
 		
 		try 
 		{
 			log.debug("'" + eventType + "' Event received");
-
-		
-
 
 			// issues Event
 			if (eventType.equals("issues")) 
@@ -57,20 +58,24 @@ public class GitHubAppController {
 				// get body from request
 				
 				String bodyString = getBody(request);
-				GitHubAppWorker worker = this.workerFactory.getWorker(bodyString);
+				JsonObject jsonObject = JsonMethods.getJSonObjectFromBodyString(bodyString);
+				GitHubAppWorker worker = this.workerFactory.getWorker(jsonObject);
+				ResponseBean responseBean =  worker.getPullRequest(jsonObject,bodyString);
+				response = ResponseEntity.status(responseBean.getStatus()).body(responseBean.getMessage());
+				log.debug("Event processed");
 				
-				response =  worker.getPullRequest();
 			} else 
 			{
-				
-					response = new HashMap<String, String>();
-					response.put("message", "Event '" + eventType + "' is not supported.");
+				log.debug("Invalid event");
+				response = ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Event '" + eventType + "' is not supported.");
+
 			}
 			
 		} catch (Exception e) {
 		
 			log.error("Error parsing event", e);
-			
+			response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error parsing event");
+
 		}
 		
 		return response;

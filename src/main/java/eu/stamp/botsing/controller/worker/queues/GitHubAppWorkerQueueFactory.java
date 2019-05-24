@@ -9,11 +9,10 @@ import com.google.gson.JsonObject;
 
 import eu.stamp.botsing.controller.worker.GitHubAppWorker;
 import eu.stamp.botsing.controller.worker.GitHubAppWorkerError;
-import eu.stamp.botsing.controller.worker.GitHubAppWorkerFactoryAbstract;
 import eu.stamp.botsing.controller.worker.WorkerFactory;
 
 @Component ("queueFactory")
-public class GitHubAppWorkerQueueFactory  extends GitHubAppWorkerFactoryAbstract implements WorkerFactory {
+public class GitHubAppWorkerQueueFactory implements WorkerFactory {
 
 	private QueueManager queueManager;
 	
@@ -23,10 +22,9 @@ public class GitHubAppWorkerQueueFactory  extends GitHubAppWorkerFactoryAbstract
 		this.queueManager.startSubscriber();
 	}
 
-	public GitHubAppWorker getWorker (String bodyString) throws IOException
+	public GitHubAppWorker getWorker (JsonObject jsonObject) throws IOException
 	{
 		GitHubAppWorker response;
-		JsonObject jsonObject = getJSonObjectFromBodyString(bodyString);
 		String action = jsonObject.get("action").getAsString();
 		
 		if (action.equals(OPENED)) 
@@ -37,7 +35,6 @@ public class GitHubAppWorkerQueueFactory  extends GitHubAppWorkerFactoryAbstract
 		
 		else response = new GitHubAppWorkerError();
 		
-		response.setParameters(jsonObject,bodyString);
 		return response;
 		
 	}

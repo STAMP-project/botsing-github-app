@@ -11,7 +11,7 @@ import eu.stamp.botsing.service.GitHubService;
 
 
 @Component ("basicFactory")
-public class GitHubAppWorkerFactory extends GitHubAppWorkerFactoryAbstract implements WorkerFactory{
+public class GitHubAppWorkerFactory implements WorkerFactory{
 
 
 	@Autowired
@@ -20,17 +20,16 @@ public class GitHubAppWorkerFactory extends GitHubAppWorkerFactoryAbstract imple
 
 	
 	@Override
-	public GitHubAppWorker getWorker (String bodyString) throws IOException
+	public GitHubAppWorker getWorker (JsonObject jsonObject) throws IOException
 	{
 		GitHubAppWorker response;
-		JsonObject jsonObject = getJSonObjectFromBodyString(bodyString);
 		String action = jsonObject.get("action").getAsString();
 		
 		if (action.equals(OPENED)) response =new GitHubAppWorkerOpened (this.gitHubService);
 		
 		else response = new GitHubAppWorkerError();
 		
-		response.setParameters(jsonObject,bodyString);
+
 		return response;
 		
 	}

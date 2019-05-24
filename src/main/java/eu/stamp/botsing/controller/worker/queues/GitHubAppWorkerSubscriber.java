@@ -1,21 +1,19 @@
 package eu.stamp.botsing.controller.worker.queues;
 
-import javax.jms.Connection;
-import javax.jms.Destination;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import eu.stamp.botsing.controller.GitHubAppController;
+import com.google.gson.JsonObject;
+
+import eu.stamp.botsing.controller.utils.JsonMethods;
 import eu.stamp.botsing.controller.worker.GitHubAppWorker;
 import eu.stamp.botsing.controller.worker.GitHubAppWorkerFactory;
 
@@ -90,8 +88,9 @@ public class GitHubAppWorkerSubscriber implements Runnable, ExceptionListener{
 	{
 		try
 		{
-			GitHubAppWorker worker =  this.basicFactory.getWorker(message);
-			worker.getPullRequest();
+			JsonObject jsonObject = JsonMethods.getJSonObjectFromBodyString(message);
+			GitHubAppWorker worker =  this.basicFactory.getWorker(jsonObject);
+			worker.getPullRequest(jsonObject,message);
 			
 		} catch (Exception e)
 		{

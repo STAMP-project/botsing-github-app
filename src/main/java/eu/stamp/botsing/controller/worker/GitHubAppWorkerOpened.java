@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
@@ -38,10 +36,6 @@ public class GitHubAppWorkerOpened  implements GitHubAppWorker{
 	private final String POPULATION = "population";
 	private final String MAX_TARGET_FRAME = "max_target_frame";
 	private final String PACKAGE_FILTER = "package_filter";
-	private JsonObject jsonObject;
-	
-
-	
 	
 	private GitHubService githubService;
 
@@ -52,24 +46,24 @@ public class GitHubAppWorkerOpened  implements GitHubAppWorker{
 	
 	
 	@Override
-	public Map<String, String> getPullRequest () throws Exception
+	public ResponseBean getPullRequest (JsonObject jsonObject, String bodyString) throws Exception
 	{
-		HashMap<String, String> response = new HashMap<>();
-
+		ResponseBean response = null;
 		// get repository information
-		String repositoryName = this.jsonObject.get("repository").getAsJsonObject().get("name").getAsString();
-		String repositoryURL  = this.jsonObject.get("repository").getAsJsonObject().get("html_url").getAsString();
-		String repositoryOwner = this.jsonObject.get("repository").getAsJsonObject().get("owner").getAsJsonObject().get("login").getAsString();
+		String repositoryName = jsonObject.get("repository").getAsJsonObject().get("name").getAsString();
+		String repositoryURL  = jsonObject.get("repository").getAsJsonObject().get("html_url").getAsString();
+		String repositoryOwner = jsonObject.get("repository").getAsJsonObject().get("owner").getAsJsonObject().get("login").getAsString();
 
 		// get issue information
-		String issueNumber = this.jsonObject.get("issue").getAsJsonObject().get("number").getAsString();
-		String issueBody = this.jsonObject.get("issue").getAsJsonObject().get("body").getAsString();
+		String issueNumber = jsonObject.get("issue").getAsJsonObject().get("number").getAsString();
+		String issueBody = jsonObject.get("issue").getAsJsonObject().get("body").getAsString();
 		
 		// read .botsing file
 		String botsingFile = githubService.getRawFile(repositoryName, repositoryOwner, BOTSING_FILE);
 
 		if (botsingFile == null) {
-			response.put("message", ".botsing file not found");
+
+			response = new ResponseBean(500,".botsing file not found");
 
 		} else {
 
@@ -80,13 +74,12 @@ public class GitHubAppWorkerOpened  implements GitHubAppWorker{
 				// TODO find a way to understand if this issue is a stacktrace that can be used by botsing
 
 				log.debug("Received issue " + issueNumber + " with a stacktrace");
-
-				String message = runBotsingAsExternalProcess(issueBody, issueNumber, botsingProperties, repositoryName, repositoryURL, repositoryOwner);
-
-				response.put("message", message);
+				response = runBotsingAsExternalProcess(issueBody, issueNumber, botsingProperties, repositoryName, repositoryURL, repositoryOwner);
+	
 
 			} else {
-				response.put("message", "Received issue " + issueNumber + " without stacktrace, issue will be ignored.");
+				response = new ResponseBean(400,"Received issue " + issueNumber + " without stacktrace, issue will be ignored.");
+
 			}
 		}
 
@@ -94,9 +87,9 @@ public class GitHubAppWorkerOpened  implements GitHubAppWorker{
 
 }
 
-	public String runBotsingAsExternalProcess(String crashLog, String issueNumber, Properties botsingProperties,
+	private ResponseBean runBotsingAsExternalProcess(String crashLog, String issueNumber, Properties botsingProperties,
 			String repositoryName, String repositoryURL, String repositoryOwner) throws IOException {
-		String result = null;
+		ResponseBean result = null;
 
 		log.info("Reading Botsing properties for issue " + issueNumber);
 
@@ -131,9 +124,11 @@ public class GitHubAppWorkerOpened  implements GitHubAppWorker{
 				crashLogFile.getAbsolutePath(), groupId, artifactId, version, maxTargetFrame, population, searchBudget,
 				globalTimeout, packageFilter);
 
-		if (noErrors == false) {
-			result = "Error executing Botsing";
-			githubService.createIssueComment(repositoryName, repositoryOwner, issueNumber, result);
+		if (noErrors == false) 
+		{
+			String comment = "Error executing Botsing";
+			result = new ResponseBean(500,comment);
+			githubService.createIssueComment(repositoryName, repositoryOwner, issueNumber, comment);
 
 		} else {
 
@@ -142,7 +137,7 @@ public class GitHubAppWorkerOpened  implements GitHubAppWorker{
 					".*EvoSuite did not generate any tests.*", new String[] { "java" });
 
 			if (testFiles != null) {
-				result = "Botsing executed succesfully with reproduction test.";
+				result = new ResponseBean(200,"Botsing executed succesfully with reproduction test.");
 
 				githubService.createIssueComment(repositoryName, repositoryOwner, issueNumber,
 						"Botsing generate the following reproduction test.");
@@ -154,8 +149,9 @@ public class GitHubAppWorkerOpened  implements GitHubAppWorker{
 
 			} else {
 
-				result = "Botsing did not generate any reproduction test.";
-				githubService.createIssueComment(repositoryName, repositoryOwner, issueNumber, result);
+				String comment = "Botsing did not generate any reproduction test.";
+				result = new ResponseBean(304, comment);
+				githubService.createIssueComment(repositoryName, repositoryOwner, issueNumber, comment);
 			}
 		}
 
@@ -165,12 +161,6 @@ public class GitHubAppWorkerOpened  implements GitHubAppWorker{
 
 
 
-	
-	@Override
-	public void setParameters(JsonObject jsonObject, String bodyString) {
-		this.jsonObject = jsonObject;
-		
-	}
 
 	
 	
