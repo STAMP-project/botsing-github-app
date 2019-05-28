@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonObject;
 
@@ -17,6 +18,7 @@ import eu.stamp.botsing.controller.utils.JsonMethods;
 import eu.stamp.botsing.controller.worker.GitHubAppWorker;
 import eu.stamp.botsing.controller.worker.GitHubAppWorkerFactory;
 
+@Component
 public class GitHubAppWorkerSubscriber implements Runnable, ExceptionListener{
 
 	private MessageConsumer messageConsumer;

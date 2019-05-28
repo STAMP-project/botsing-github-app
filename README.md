@@ -70,11 +70,28 @@ To create the GitHub App you need to access GitHub with your account and then go
 
 * Profile > Settings > Developer settings > GitHub Apps > New GitHub App
 
-Here you have to set a name and a description for the app and the URL of the service exposed by the server that you installed in the steps before.
+Here you have to set:
 
-The permission needed by the botsing-github-app are to access the repository, modify it, access to the issues and to create a pull request.
+* a name and a description for the app 
+* a homepage url the URL containing basic information on the App (can be also a test URL)
+* the webhook URL, that is the URL of the service exposed by the server that you installed in the steps before.
 
-At the end you have to give the access to your repository to this app.
+In the section ''permission & events'' you need to set the permission to enable botsing-github-app to access perform its activities, in particular:
+
+* read and write the repository
+* read and write the issues 
+* read and write the pull requests.
+
+In the subsection ''Subscribe to events'' you need to check the event ''issues''.
+
+Then you have to choice an authentication method to be set on botsing-github-app to access GitHub. The methods currently supported are:
+
+* username/password (you need to set your username/password credentials on botsing configuration file as described above)
+* OAuth2 token (you need to create an OAuth2 token at GitHub side and copy it on the configuration file as described above)
+
+Finally you have to install the app and select the repository.
+
+
 
 ## Add Botsing properties file
 
