@@ -68,7 +68,6 @@ public class GitHubAppController {
 			{
 				log.debug("Invalid event");
 				response = ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Event '" + eventType + "' is not supported.");
-
 			}
 			
 		} catch (Exception e) {

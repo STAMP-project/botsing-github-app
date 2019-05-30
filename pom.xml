@@ -27,13 +27,6 @@
 			<organization>Engineering Ingegneria Informatica S.p.A.</organization>
 			<organizationUrl>http://www.eng.it</organizationUrl>
 		</developer>
-		<developer>
-			<id>cirformi</id>
-			<name>Ciro Formisano</name>
-			<email>ciro.formisano at eng.it</email>
-			<organization>Engineering Ingegneria Informatica S.p.A.</organization>
-			<organizationUrl>http://www.eng.it</organizationUrl>
-		</developer>
 	</developers>
 
 	<dependencies>
