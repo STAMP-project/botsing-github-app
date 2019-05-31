@@ -1,4 +1,4 @@
-package eu.stamp.botsing.controller.worker;
+package eu.stamp.botsing.controller.event;
 
 public class ResponseBean {
 

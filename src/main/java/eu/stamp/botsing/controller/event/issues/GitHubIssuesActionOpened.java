@@ -1,4 +1,4 @@
-package eu.stamp.botsing.controller.worker;
+package eu.stamp.botsing.controller.event.issues;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,12 +9,14 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Component;
 
 import com.google.common.io.Files;
 import com.google.gson.JsonObject;
 
+import eu.stamp.botsing.controller.event.ResponseBean;
 import eu.stamp.botsing.controller.utils.Constants;
 import eu.stamp.botsing.runner.MavenRunner;
 import eu.stamp.botsing.service.GitHubService;
@@ -22,9 +24,9 @@ import eu.stamp.botsing.utility.FileUtility;
 
 @Configurable
 @Component
-public class GitHubAppWorkerOpened  implements GitHubAppWorker{
+public class GitHubIssuesActionOpened  implements GitHubIssuesAction{
 
-	Logger log = LoggerFactory.getLogger(GitHubAppWorkerOpened.class);;
+	Logger log = LoggerFactory.getLogger(GitHubIssuesActionOpened.class);;
 	
 	private final String BOTSING_FILE = ".botsing";
 	
@@ -37,16 +39,17 @@ public class GitHubAppWorkerOpened  implements GitHubAppWorker{
 	private final String MAX_TARGET_FRAME = "max_target_frame";
 	private final String PACKAGE_FILTER = "package_filter";
 	
+	@Autowired
 	private GitHubService githubService;
 
-	public GitHubAppWorkerOpened(GitHubService service) 
-	{
-		this.githubService = service;
-	}
+	private final String ACTION_OPENED ="opened";
+	
+	
+
 	
 	
 	@Override
-	public ResponseBean getPullRequest (JsonObject jsonObject, String bodyString) throws Exception
+	public ResponseBean execute (JsonObject jsonObject, String bodyString) throws Exception
 	{
 		ResponseBean response = null;
 		// get repository information
@@ -157,6 +160,14 @@ public class GitHubAppWorkerOpened  implements GitHubAppWorker{
 
 		return result;
 	}
+
+
+	@Override
+	public String actionName() {
+		return ACTION_OPENED;
+	}
+
+
 
 
 

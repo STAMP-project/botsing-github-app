@@ -22,8 +22,10 @@ public class QueueManager
 	private final String 	CONNECTION_NAME = "vm://localhost",
 							QUEUE_NAME = "botsing";
 	
+
+	
 	@Autowired
-	private GitHubAppWorkerSubscriber subscriber;
+	private GitHubQueueSubscriber subscriber;
 	
 	public QueueManager () throws Exception
 	{
@@ -49,9 +51,9 @@ public class QueueManager
 
 	}
 
-	public GitHubAppPublisherWorker getWorker ()
+	public GitHubQueuePublisher createPublisher (String event, String action)
 	{
-		return new GitHubAppPublisherWorker(this.producer, this.txSession);
+		return new GitHubQueuePublisher(this.producer, this.txSession, event,action);
 	}
 	
 }

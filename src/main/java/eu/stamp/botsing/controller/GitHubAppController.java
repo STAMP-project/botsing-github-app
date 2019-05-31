@@ -18,10 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.JsonObject;
 
+import eu.stamp.botsing.controller.event.GitHubAction;
+import eu.stamp.botsing.controller.event.GitHubActionFactory;
+import eu.stamp.botsing.controller.event.GitHubEventFactory;
+import eu.stamp.botsing.controller.event.InvalidEventException;
+import eu.stamp.botsing.controller.event.ResponseBean;
+import eu.stamp.botsing.controller.event.issues.InvalidActionException;
 import eu.stamp.botsing.controller.utils.JsonMethods;
-import eu.stamp.botsing.controller.worker.GitHubAppWorker;
-import eu.stamp.botsing.controller.worker.ResponseBean;
-import eu.stamp.botsing.controller.worker.WorkerFactory;
 
 @RestController
 public class GitHubAppController {
@@ -29,8 +32,8 @@ public class GitHubAppController {
 	Logger log = LoggerFactory.getLogger(GitHubAppController.class);
 
 	@Autowired 
-	@Qualifier ("queueFactory")
-	private WorkerFactory workerFactory;
+	@Qualifier ("queuedEventFactory")
+	private GitHubEventFactory eventFactoryFactory;
 
 
 
@@ -38,6 +41,7 @@ public class GitHubAppController {
 	public String greeting() {
 		return "This is the Botsing GitHub App Test Service. More informations can be found here: https://github.com/STAMP-project/botsing-github-app";
 	}
+
 
 	@PostMapping(value = "/botsing-github-app")
 	public ResponseEntity<String> getPullRequestFullBody(HttpServletRequest request,
@@ -51,24 +55,36 @@ public class GitHubAppController {
 		try 
 		{
 			log.debug("'" + eventType + "' Event received");
-
-			// issues Event
-			if (eventType.equals("issues")) 
+			ResponseBean responseBean =  null;
+			try
 			{
-				// get body from request
 				
+				GitHubActionFactory actionFactory =  this.eventFactoryFactory.getActionFactory(eventType);
 				String bodyString = getBody(request);
 				JsonObject jsonObject = JsonMethods.getJSonObjectFromBodyString(bodyString);
-				GitHubAppWorker worker = this.workerFactory.getWorker(jsonObject);
-				ResponseBean responseBean =  worker.getPullRequest(jsonObject,bodyString);
-				response = ResponseEntity.status(responseBean.getStatus()).body(responseBean.getMessage());
-				log.debug("Event processed");
 				
-			} else 
+				try
+				{
+					GitHubAction action = actionFactory.getAction(jsonObject);
+					responseBean =  action.execute(jsonObject,bodyString);
+					
+				} catch (InvalidActionException iae)
+				{
+					this.log.debug("Invalid action "+iae.getActionName()+ " for event "+iae.getEventName());
+					responseBean =   iae.geResponseBean();
+				}
+				
+			}
+
+			catch (InvalidEventException ie)
 			{
 				log.debug("Invalid event");
-				response = ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Event '" + eventType + "' is not supported.");
+				responseBean =   ie.geResponseBean();
+
 			}
+
+			response = ResponseEntity.status(responseBean.getStatus()).body(responseBean.getMessage());
+
 			
 		} catch (Exception e) {
 		
@@ -82,7 +98,6 @@ public class GitHubAppController {
 	}
 
 
-
 	/**
 	 * Read body from request
 	 *
@@ -90,7 +105,7 @@ public class GitHubAppController {
 	 * @return
 	 * @throws IOException
 	 */
-	private String getBody(HttpServletRequest request) throws IOException {
+	protected String getBody(HttpServletRequest request) throws IOException {
 		StringBuilder buffer = new StringBuilder();
 		BufferedReader reader = request.getReader();
 
@@ -101,5 +116,6 @@ public class GitHubAppController {
 
 		return buffer.toString();
 	}
+
 
 }

@@ -14,22 +14,22 @@ import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonObject;
 
+import eu.stamp.botsing.controller.event.GitHubAction;
+import eu.stamp.botsing.controller.event.GitHubEventFactory;
 import eu.stamp.botsing.controller.utils.JsonMethods;
-import eu.stamp.botsing.controller.worker.GitHubAppWorker;
-import eu.stamp.botsing.controller.worker.GitHubAppWorkerFactory;
 
 @Component
-public class GitHubAppWorkerSubscriber implements Runnable, ExceptionListener{
+public class GitHubQueueSubscriber implements Runnable, ExceptionListener{
 
 	private MessageConsumer messageConsumer;
-	Logger log = LoggerFactory.getLogger(GitHubAppWorkerSubscriber.class);
+	Logger log = LoggerFactory.getLogger(GitHubQueueSubscriber.class);
 	private boolean started;
 	
 	@Autowired
-	@Qualifier("basicFactory")
-	private GitHubAppWorkerFactory basicFactory;
+	@Qualifier ("basicEventFactory")
+	private GitHubEventFactory eventFactory;
 
-	public GitHubAppWorkerSubscriber() {
+	public GitHubQueueSubscriber() {
 		this.started = false;
 	}
 
@@ -65,7 +65,10 @@ public class GitHubAppWorkerSubscriber implements Runnable, ExceptionListener{
 
 				if (message   instanceof TextMessage) {
 					
-					processMessage(((TextMessage) message).getText());
+					TextMessage textMessage = (TextMessage) message;
+					
+					processMessage(textMessage.getStringProperty(GitHubEventFactory.EVENT), textMessage.getStringProperty(GitHubEventFactory.ACTION), 
+							textMessage.getText());
 					
 				}
 				else
@@ -86,13 +89,13 @@ public class GitHubAppWorkerSubscriber implements Runnable, ExceptionListener{
 
 	}
 	
-	private void processMessage (String message)
+	private void processMessage (String eventName, String actionName,String message)
 	{
 		try
 		{
 			JsonObject jsonObject = JsonMethods.getJSonObjectFromBodyString(message);
-			GitHubAppWorker worker =  this.basicFactory.getWorker(jsonObject);
-			worker.getPullRequest(jsonObject,message);
+			GitHubAction action = this.eventFactory.getActionFactory(eventName).getAction(actionName);
+			action.execute(jsonObject,message);
 			
 		} catch (Exception e)
 		{
