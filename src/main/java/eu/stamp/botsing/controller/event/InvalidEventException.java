@@ -2,7 +2,7 @@ package eu.stamp.botsing.controller.event;
 
 import org.springframework.http.HttpStatus;
 
-public class InvalidEventException extends Exception {
+public class InvalidEventException extends Exception implements RestException{
 
 	/**
 	 * 
@@ -19,6 +19,7 @@ public class InvalidEventException extends Exception {
 		return eventName;
 	}
 	
+	@Override
 	public ResponseBean geResponseBean ()
 	{
 		return new ResponseBean(HttpStatus.NOT_IMPLEMENTED.value(), "Event '" + this.eventName + "' is not supported.");

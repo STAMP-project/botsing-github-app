@@ -11,12 +11,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.google.common.io.Files;
 import com.google.gson.JsonObject;
 
 import eu.stamp.botsing.controller.event.ResponseBean;
+import eu.stamp.botsing.controller.event.filter.ActionFilter;
+import eu.stamp.botsing.controller.event.filter.FilteredActionException;
 import eu.stamp.botsing.controller.utils.Constants;
 import eu.stamp.botsing.runner.MavenRunner;
 import eu.stamp.botsing.service.GitHubService;
@@ -42,8 +45,12 @@ public class GitHubIssuesActionOpened  implements GitHubIssuesAction{
 	@Autowired
 	private GitHubService githubService;
 
-	private final String ACTION_OPENED ="opened";
+	@Autowired
+	@Qualifier ("configuration")
+	private ActionFilter actionFilter;
 	
+	private final String 	ACTION_OPENED ="opened",
+							QUALIFIED_ACTION_NAME = GitHubIssuesActionFactory.EVENT_NAME+"."+ACTION_OPENED;
 	
 
 	
@@ -135,7 +142,7 @@ public class GitHubIssuesActionOpened  implements GitHubIssuesAction{
 
 		} else {
 
-			// get generated file as string
+			// get generated file as stringGitHubIssuesActionFactory.EVENT_NAME+"."+ACTION_OPENED;
 			Collection<File> testFiles = FileUtility.search(workingDir.getAbsolutePath(),
 					".*EvoSuite did not generate any tests.*", new String[] { "java" });
 
@@ -162,17 +169,27 @@ public class GitHubIssuesActionOpened  implements GitHubIssuesAction{
 	}
 
 
+
 	@Override
-	public String actionName() {
+	public String getActionName() 
+	{
+
 		return ACTION_OPENED;
 	}
 
+	@Override
+	public String getQualifiedActionName() 
+	{
+		return  QUALIFIED_ACTION_NAME;
+	}
+
+	@Override
+	public void applyFilter(JsonObject jsonObject) throws FilteredActionException {
+
+		this.actionFilter.apply(GitHubIssuesActionFactory.EVENT_NAME, ACTION_OPENED,jsonObject);
+		
+	}
 
 
-
-
-
-
-	
 	
 }

@@ -67,8 +67,7 @@ public class GitHubQueueSubscriber implements Runnable, ExceptionListener{
 					
 					TextMessage textMessage = (TextMessage) message;
 					
-					processMessage(textMessage.getStringProperty(GitHubEventFactory.EVENT), textMessage.getStringProperty(GitHubEventFactory.ACTION), 
-							textMessage.getText());
+					processMessage(textMessage.getStringProperty(GitHubEventFactory.EVENT), textMessage.getText());
 					
 				}
 				else
@@ -89,12 +88,12 @@ public class GitHubQueueSubscriber implements Runnable, ExceptionListener{
 
 	}
 	
-	private void processMessage (String eventName, String actionName,String message)
+	private void processMessage (String eventName,String message)
 	{
 		try
 		{
 			JsonObject jsonObject = JsonMethods.getJSonObjectFromBodyString(message);
-			GitHubAction action = this.eventFactory.getActionFactory(eventName).getAction(actionName);
+			GitHubAction action = this.eventFactory.getActionFactory(eventName).getAction(jsonObject);
 			action.execute(jsonObject,message);
 			
 		} catch (Exception e)

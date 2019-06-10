@@ -18,7 +18,8 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import eu.stamp.botsing.controller.event.GitHubEventFactoryImpl;
-import eu.stamp.botsing.controller.event.issues.GitHubIssuesActionFactory;
+import eu.stamp.botsing.controller.event.filter.ConfigurationBasedLabelActionFilter;
+import eu.stamp.botsing.controller.event.issues.GitHubIssuesActionFactoryImpl;
 import eu.stamp.botsing.controller.event.issues.GitHubIssuesActionOpened;
 import eu.stamp.botsing.controller.worker.queues.GitHubIssuesQueuedActionFactoryManagerImpl;
 import eu.stamp.botsing.controller.worker.queues.GitHubQueueEventFactoryImpl;
@@ -28,9 +29,9 @@ import eu.stamp.botsing.service.GitHubService;
 import eu.stamp.botsing.utility.ConfigurationBean;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { GitHubAppController.class,GitHubEventFactoryImpl.class,GitHubQueueEventFactoryImpl.class, GitHubIssuesActionFactory.class, 
+@SpringBootTest(classes = { GitHubAppController.class,GitHubEventFactoryImpl.class,GitHubQueueEventFactoryImpl.class, GitHubIssuesActionFactoryImpl.class, 
 		GitHubIssuesActionOpened.class,QueueManager.class, GitHubQueueSubscriber.class, GitHubIssuesQueuedActionFactoryManagerImpl.class, 
-		ConfigurationBean.class, GitHubService.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
+		ConfigurationBean.class, GitHubService.class,ConfigurationBasedLabelActionFilter.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
 @EnableAutoConfiguration
 @AutoConfigureMockMvc
 public class GitHubAppControllerTestIT {

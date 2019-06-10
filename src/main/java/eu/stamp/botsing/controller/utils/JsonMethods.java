@@ -8,7 +8,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class JsonMethods {
+public class JsonMethods 
+{
 	public static JsonObject getJSonObjectFromBodyString(String body) throws IOException {
 		JsonObject jsonObject = null;
 

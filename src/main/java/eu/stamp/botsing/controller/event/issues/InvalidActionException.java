@@ -1,8 +1,9 @@
 package eu.stamp.botsing.controller.event.issues;
 
 import eu.stamp.botsing.controller.event.ResponseBean;
+import eu.stamp.botsing.controller.event.RestException;
 
-public class InvalidActionException  extends Exception {
+public class InvalidActionException  extends Exception implements RestException{
 
 	/**
 	 * 
@@ -18,6 +19,7 @@ public class InvalidActionException  extends Exception {
 	}
 
 
+	@Override
 	public ResponseBean geResponseBean ()
 	{
 		return new ResponseBean(400, "action '"+this.actionName+"' is not supported for event "+this.eventName);

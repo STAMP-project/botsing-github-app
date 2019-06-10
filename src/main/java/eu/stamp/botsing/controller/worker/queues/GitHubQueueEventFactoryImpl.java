@@ -22,8 +22,7 @@ public class GitHubQueueEventFactoryImpl extends GitHubAbstractEventFactoryImpl 
 	
 	@PostConstruct
 	public void init ()
-	{
-		
+	{	
 		for (GitHubQueuedActionFactoryManager actionFactoryManager: this.actionFactoryManagers)
 		{
 			GitHubActionFactory actionFactory = actionFactoryManager.getActionFactory();

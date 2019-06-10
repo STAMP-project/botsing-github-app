@@ -23,13 +23,14 @@ import eu.stamp.botsing.controller.event.GitHubActionFactory;
 import eu.stamp.botsing.controller.event.GitHubEventFactory;
 import eu.stamp.botsing.controller.event.InvalidEventException;
 import eu.stamp.botsing.controller.event.ResponseBean;
+import eu.stamp.botsing.controller.event.filter.FilteredActionException;
 import eu.stamp.botsing.controller.event.issues.InvalidActionException;
 import eu.stamp.botsing.controller.utils.JsonMethods;
 
 @RestController
 public class GitHubAppController {
 
-	Logger log = LoggerFactory.getLogger(GitHubAppController.class);
+	private Logger log = LoggerFactory.getLogger(GitHubAppController.class);
 
 	@Autowired 
 	@Qualifier ("queuedEventFactory")
@@ -39,16 +40,13 @@ public class GitHubAppController {
 
 	@RequestMapping("/test")
 	public String greeting() {
-		return "This is the Botsing GitHub App Test Service. More informations can be found here: https://github.com/STAMP-project/botsing-github-app";
+		return "This is the Botsing GitHub App Test Service. More information can be found here: https://github.com/STAMP-project/botsing-github-app";
 	}
 
 
 	@PostMapping(value = "/botsing-github-app")
 	public ResponseEntity<String> getPullRequestFullBody(HttpServletRequest request,
 			@RequestHeader(value = "X-GitHub-Event", defaultValue = "") String eventType) {
-
-
-		// TODO use HTTP 400 Bad Request if mandatory parameters are missing
 
 		ResponseEntity<String> response = null;
 		
@@ -72,6 +70,10 @@ public class GitHubAppController {
 				{
 					this.log.debug("Invalid action "+iae.getActionName()+ " for event "+iae.getEventName());
 					responseBean =   iae.geResponseBean();
+				} catch (FilteredActionException fie)
+				{
+					this.log.debug("Action filtered");
+					responseBean = fie.geResponseBean();
 				}
 				
 			}

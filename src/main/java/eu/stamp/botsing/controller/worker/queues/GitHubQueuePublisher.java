@@ -12,6 +12,7 @@ import com.google.gson.JsonObject;
 import eu.stamp.botsing.controller.event.GitHubAction;
 import eu.stamp.botsing.controller.event.GitHubEventFactory;
 import eu.stamp.botsing.controller.event.ResponseBean;
+import eu.stamp.botsing.controller.event.filter.FilteredActionException;
 
 public class GitHubQueuePublisher implements GitHubAction {
 
@@ -19,7 +20,9 @@ public class GitHubQueuePublisher implements GitHubAction {
 	private MessageProducer messageProducer;
 	private Session session;
 	private String 	event,
-					action;
+					action,
+					qualifiedName;
+	
 	
 	GitHubQueuePublisher(MessageProducer messageProducer, Session session,String event, String action) 
 	{
@@ -27,6 +30,7 @@ public class GitHubQueuePublisher implements GitHubAction {
 		this.session = session;
 		this.event = event;
 		this.action = action;
+		this.qualifiedName=event+"."+action;
 	}
 	
 
@@ -43,9 +47,27 @@ public class GitHubQueuePublisher implements GitHubAction {
 	}
 
 	@Override
-	public String actionName() 
+	public String getActionName() 
 	{
 		return this.action;
+	}
+
+
+
+
+	@Override
+	public String getQualifiedActionName() 
+	{
+		return this.qualifiedName;
+	}
+
+
+
+
+	@Override
+	public void applyFilter(JsonObject jsonObject) throws FilteredActionException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

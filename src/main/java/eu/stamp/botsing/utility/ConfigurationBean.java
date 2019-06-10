@@ -13,7 +13,7 @@ public class ConfigurationBean {
 	private String githubUsername;
 	private String githubPassword;
 	private String githubToken;
-
+	private String githubAcceptedLabel;
 	private String proxyHost;
 	private Integer proxyPort;
 
@@ -65,4 +65,16 @@ public class ConfigurationBean {
 		this.proxyPort = proxyPort;
 	}
 
+	public String getGithubAcceptedLabel() {
+		return githubAcceptedLabel;
+	}
+
+	public void setGithubAcceptedLabel(String githubAcceptedLabel) {
+		this.githubAcceptedLabel = githubAcceptedLabel;
+	}
+
+
+	
+
+	
 }

@@ -4,18 +4,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public abstract class GitHubAbstractEventFactoryImpl {
-
+public abstract class GitHubAbstractEventFactoryImpl 
+{
 	
 	private Map<String, GitHubActionFactory> actionFactoryMap;
 	
-	public GitHubAbstractEventFactoryImpl() {
+	public GitHubAbstractEventFactoryImpl() 
+	{
 		this.actionFactoryMap = new HashMap<String, GitHubActionFactory>();
 	}
 
-	protected void addActionFactory (String action, GitHubActionFactory actionFactory)
+	protected void addActionFactory (String eventName, GitHubActionFactory actionFactory)
 	{
-		this.actionFactoryMap.put(action, actionFactory);
+		this.actionFactoryMap.put(eventName, actionFactory);
 	}
 	
 
