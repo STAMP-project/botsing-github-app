@@ -1,4 +1,4 @@
-package eu.stamp.botsing.controller.worker.queues;
+package eu.stamp.botsing.controller.queues;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -7,10 +7,8 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
+
 public class QueueManager 
 {
 	private Connection 	txConnection,
@@ -24,11 +22,11 @@ public class QueueManager
 	
 
 	
-	@Autowired
 	private GitHubQueueSubscriber subscriber;
 	
-	public QueueManager () throws Exception
+	public QueueManager (GitHubQueueSubscriber subscriber) throws Exception
 	{
+		this.subscriber = subscriber;
 		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(CONNECTION_NAME);
 		this.txConnection = connectionFactory.createConnection();
 		this.txConnection.start();

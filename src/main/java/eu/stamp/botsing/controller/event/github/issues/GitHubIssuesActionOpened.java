@@ -1,4 +1,4 @@
-package eu.stamp.botsing.controller.event.issues;
+package eu.stamp.botsing.controller.event.github.issues;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.io.Files;
 import com.google.gson.JsonObject;
 
+import eu.stamp.botsing.controller.ActionObject;
 import eu.stamp.botsing.controller.event.ResponseBean;
 import eu.stamp.botsing.controller.event.filter.ActionFilter;
 import eu.stamp.botsing.controller.event.filter.FilteredActionException;
@@ -56,9 +57,10 @@ public class GitHubIssuesActionOpened  implements GitHubIssuesAction{
 	
 	
 	@Override
-	public ResponseBean execute (JsonObject jsonObject, String bodyString) throws Exception
+	public ResponseBean execute (ActionObject actionObject) throws Exception
 	{
 		ResponseBean response = null;
+		JsonObject jsonObject = actionObject.getJsonObject();
 		// get repository information
 		String repositoryName = jsonObject.get("repository").getAsJsonObject().get("name").getAsString();
 		String repositoryURL  = jsonObject.get("repository").getAsJsonObject().get("html_url").getAsString();

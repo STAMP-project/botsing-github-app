@@ -1,4 +1,4 @@
-package eu.stamp.botsing.controller.worker.queues;
+package eu.stamp.botsing.controller.queues;
 
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
@@ -8,29 +8,27 @@ import javax.jms.TextMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonObject;
 
-import eu.stamp.botsing.controller.event.GitHubAction;
-import eu.stamp.botsing.controller.event.GitHubEventFactory;
+import eu.stamp.botsing.controller.ActionObject;
+import eu.stamp.botsing.controller.event.Action;
+import eu.stamp.botsing.controller.event.EventFactory;
 import eu.stamp.botsing.controller.utils.JsonMethods;
 
-@Component
+
 public class GitHubQueueSubscriber implements Runnable, ExceptionListener{
 
 	private MessageConsumer messageConsumer;
-	Logger log = LoggerFactory.getLogger(GitHubQueueSubscriber.class);
+	private Logger log = LoggerFactory.getLogger(GitHubQueueSubscriber.class);
 	private boolean started;
 	
-	@Autowired
-	@Qualifier ("basicEventFactory")
-	private GitHubEventFactory eventFactory;
 
-	public GitHubQueueSubscriber() {
+	private EventFactory eventFactory;
+
+	public GitHubQueueSubscriber(EventFactory eventFactory) {
 		this.started = false;
+		this.eventFactory = eventFactory;
 	}
 
 
@@ -67,7 +65,7 @@ public class GitHubQueueSubscriber implements Runnable, ExceptionListener{
 					
 					TextMessage textMessage = (TextMessage) message;
 					
-					processMessage(textMessage.getStringProperty(GitHubEventFactory.EVENT), textMessage.getText());
+					processMessage(textMessage.getStringProperty(EventFactory.EVENT), textMessage.getText());
 					
 				}
 				else
@@ -93,8 +91,8 @@ public class GitHubQueueSubscriber implements Runnable, ExceptionListener{
 		try
 		{
 			JsonObject jsonObject = JsonMethods.getJSonObjectFromBodyString(message);
-			GitHubAction action = this.eventFactory.getActionFactory(eventName).getAction(jsonObject);
-			action.execute(jsonObject,message);
+			Action action = this.eventFactory.getActionFactory(eventName).getAction(jsonObject);
+			action.execute(new ActionObject(jsonObject, message));
 			
 		} catch (Exception e)
 		{
@@ -103,5 +101,6 @@ public class GitHubQueueSubscriber implements Runnable, ExceptionListener{
 		
 		
 	}
+	
 	
 }

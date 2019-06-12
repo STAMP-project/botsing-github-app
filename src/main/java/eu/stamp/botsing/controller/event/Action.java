@@ -2,15 +2,16 @@ package eu.stamp.botsing.controller.event;
 
 import com.google.gson.JsonObject;
 
+import eu.stamp.botsing.controller.ActionObject;
 import eu.stamp.botsing.controller.event.filter.FilteredActionException;
 
-public interface GitHubAction {
+public interface Action {
 
 	String getActionName ();
 	
 	String getQualifiedActionName ();
 	
-	ResponseBean execute (JsonObject jsonObject, String bodyString) throws Exception;
+	ResponseBean execute (ActionObject actionObject) throws Exception;
 
 	void applyFilter (JsonObject jsonObject) throws FilteredActionException;
 }

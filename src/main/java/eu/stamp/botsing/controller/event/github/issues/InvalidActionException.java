@@ -1,4 +1,4 @@
-package eu.stamp.botsing.controller.event.issues;
+package eu.stamp.botsing.controller.event.github.issues;
 
 import eu.stamp.botsing.controller.event.ResponseBean;
 import eu.stamp.botsing.controller.event.RestException;
