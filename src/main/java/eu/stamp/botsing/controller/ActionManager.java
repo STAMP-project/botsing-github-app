@@ -8,7 +8,7 @@ public class ActionManager {
 	private Action action;
 	private ActionObject actionObject;
 	
-	public ActionManager(Action action, ActionObject actionObject) {
+	ActionManager(Action action, ActionObject actionObject) {
 		this.action =action;
 		this.actionObject = actionObject;		
 	}

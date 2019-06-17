@@ -15,17 +15,18 @@ import eu.stamp.botsing.controller.event.EventFactory;
 import eu.stamp.botsing.controller.event.ResponseBean;
 import eu.stamp.botsing.controller.event.filter.FilteredActionException;
 
-public class GitHubQueuePublisher implements Action {
+public class QueuePublisher implements Action {
 
-	private static final Logger log = LoggerFactory.getLogger(GitHubQueuePublisher.class);;
+	private static final Logger log = LoggerFactory.getLogger(QueuePublisher.class);;
 	private MessageProducer messageProducer;
 	private Session session;
 	private String 	event,
 					action,
-					qualifiedName;
+					qualifiedName,
+					toolName;
 	
 	
-	GitHubQueuePublisher(MessageProducer messageProducer, Session session,String event, String action) 
+	QueuePublisher(MessageProducer messageProducer, Session session,String toolName,String event, String action) 
 	{
 		this.messageProducer = messageProducer;
 		this.session = session;
@@ -42,7 +43,8 @@ public class GitHubQueuePublisher implements Action {
 		log.debug("Adding the request in queue");
 		TextMessage messageObject = this.session.createTextMessage(actionObject.getJsonString());
 		messageObject.setStringProperty(EventFactory.EVENT, this.event);
-		messageObject.setStringProperty(EventFactory.ACTION, this.action);		
+		messageObject.setStringProperty(EventFactory.ACTION, this.action);	
+		messageObject.setStringProperty(EventFactory.TOOL, this.toolName);	
 		this.messageProducer.send(messageObject);
 		return new ResponseBean(202,"Request forwarded to botsing");	
 	}

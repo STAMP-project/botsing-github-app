@@ -1,4 +1,4 @@
-package eu.stamp.botsing.controller.github;
+package eu.stamp.botsing.controller.jira;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,26 +18,28 @@ import eu.stamp.botsing.controller.event.EventFactory;
 import eu.stamp.botsing.controller.event.InvalidEventException;
 import eu.stamp.botsing.controller.event.ResponseBean;
 import eu.stamp.botsing.controller.event.filter.FilteredActionException;
-import eu.stamp.botsing.controller.event.github.GitHubActionFactory;
 import eu.stamp.botsing.controller.event.github.issues.InvalidActionException;
+import eu.stamp.botsing.controller.event.jira.JiraActionFactory;
 
 @RestController
-public class GitHubAppController extends QueuedAppController{
+@RequestMapping("/jira")
+public class JiraAppController extends QueuedAppController{
 
 
 
-	private Logger log = LoggerFactory.getLogger(GitHubAppController.class);
+	private Logger log = LoggerFactory.getLogger(JiraAppController.class);
 
 	@RequestMapping("/test")
 	public String greeting(String message) {
-		return "This is the Botsing GitHub App Test Service. More information can be found here: https://github.com/STAMP-project/botsing-github-app";
+		return "This is the Botsing Jira App Test Service.";
 	}
 
 
-
-	@PostMapping(value = "/botsing-github-app")
+	@PostMapping(value = "/botsing-jira-app")
 	public ResponseEntity<String> getPullRequestFullBody(HttpServletRequest request,@RequestHeader(value = "X-GitHub-Event", defaultValue = "")  String eventType) {
 
+		
+		
 		ResponseEntity<String> response = null;
 		
 		try 
@@ -47,7 +49,7 @@ public class GitHubAppController extends QueuedAppController{
 				
 			try
 			{
-				ActionManager actionManager = super.getAction(request,GitHubActionFactory.TOOL_NAME, eventType);
+				ActionManager actionManager = super.getAction(request,JiraActionFactory.TOOL_NAME, eventType);
 				responseBean =  actionManager.executeAction();
 				
 			} 

@@ -7,7 +7,9 @@ import eu.stamp.botsing.controller.event.github.issues.InvalidActionException;
 
 public interface ActionFactory 
 {	
-	public String eventName ();
+	public String getEventName ();
+	
+	public String getQualifiedEventName ();
 
 	public Action getAction (JsonObject jsonObject) throws InvalidActionException, FilteredActionException;
 

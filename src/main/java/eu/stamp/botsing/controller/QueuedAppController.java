@@ -1,4 +1,4 @@
-package eu.stamp.botsing.controller.github;
+package eu.stamp.botsing.controller;
 
 import java.io.IOException;
 
@@ -14,21 +14,21 @@ import eu.stamp.botsing.controller.event.EventFactory;
 import eu.stamp.botsing.controller.event.InvalidEventException;
 import eu.stamp.botsing.controller.event.filter.FilteredActionException;
 import eu.stamp.botsing.controller.event.github.issues.InvalidActionException;
-import eu.stamp.botsing.controller.queues.GitHubQueueSubscriber;
 import eu.stamp.botsing.controller.queues.QueueManager;
+import eu.stamp.botsing.controller.queues.QueueSubscriber;
 
-public abstract class GitHubQueuedAppController extends AppController {
+public abstract class QueuedAppController extends AppController {
 
-	private Logger log = LoggerFactory.getLogger(GitHubQueuedAppController.class);
+	private Logger log = LoggerFactory.getLogger(QueuedAppController.class);
 	private QueueManager queueManager;
 	
 	@Override
-	protected ActionManager getAction(HttpServletRequest request, String eventType)
+	protected ActionManager getAction(HttpServletRequest request, String toolName,String eventType)
 			throws InvalidEventException, IOException, InvalidActionException, FilteredActionException 
 	{
-		ActionManager basicActionManager = super.getAction(request, eventType);
+		ActionManager basicActionManager = super.getAction(request, toolName,eventType);
 		this.log.debug("Action found: publishing on the queue");
-		Action queueAction =  this.queueManager.createPublisher(eventType, basicActionManager.getActionName());
+		Action queueAction =  this.queueManager.createPublisher(toolName,eventType, basicActionManager.getActionName());
 		return new ActionManager(queueAction, basicActionManager);
 	}
 	
@@ -36,7 +36,7 @@ public abstract class GitHubQueuedAppController extends AppController {
 	public void setEventFactory(EventFactory eventFactory) throws Exception
 	{
 
-		this.queueManager = new QueueManager(new GitHubQueueSubscriber(eventFactory));
+		this.queueManager = new QueueManager(new QueueSubscriber(eventFactory));
 		this.queueManager.startSubscriber();
 		super.setEventFactory(eventFactory);
 	}

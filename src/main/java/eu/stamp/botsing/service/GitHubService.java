@@ -28,7 +28,8 @@ import org.springframework.stereotype.Service;
 import eu.stamp.botsing.utility.ConfigurationBean;
 
 @Service
-public class GitHubService {
+public class GitHubService implements CICDService 
+{
 	Logger log = LoggerFactory.getLogger(GitHubService.class);
 
 	private GitHubClient client;
@@ -79,6 +80,7 @@ public class GitHubService {
 		return pr.getHtmlUrl();
 	}
 
+	@Override
 	public String getRawFile(String repositoryName, String repositoryOwner, String filePath) throws IOException {
 		log.debug("Reading file '" + filePath + "'");
 		String result = null;
@@ -111,6 +113,7 @@ public class GitHubService {
 		return result;
 	}
 
+	@Override
 	public String getIssueBody(String repositoryName, String repositoryOwner, String issueNumber) throws IOException {
 		log.debug("Reading issue");
 		String result = null;
@@ -124,6 +127,7 @@ public class GitHubService {
 		return result;
 	}
 
+	@Override
 	public String createIssueComment(String repositoryName, String repositoryOwner, String issueNumber, String comment)
 			throws IOException {
 
@@ -133,7 +137,8 @@ public class GitHubService {
 		return issueComment.getBody();
 	}
 
-	public String createIssueCommentWithFile(String repositoryName, String repositoryOwner, String issueNumber, File file)
+	@Override
+	public String sendFile(String repositoryName, String repositoryOwner, String issueNumber, File file)
 			throws IOException {
 		log.debug("Creating new issue comment with file");
 

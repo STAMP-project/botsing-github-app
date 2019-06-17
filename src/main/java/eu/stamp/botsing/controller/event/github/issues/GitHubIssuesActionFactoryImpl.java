@@ -17,7 +17,7 @@ import eu.stamp.botsing.controller.event.filter.FilteredActionException;
 
 
 
-@Component ("basicActionFactory")
+@Component 
 public class GitHubIssuesActionFactoryImpl implements GitHubIssuesActionFactory{
 
 	private Map<String, Action> actionMap;
@@ -54,8 +54,14 @@ public class GitHubIssuesActionFactoryImpl implements GitHubIssuesActionFactory{
 
 	
 
-	
-	public String eventName() {
+	@Override
+	public String getEventName() {
 		return EVENT_NAME;
+	}
+
+	@Override
+	public String getQualifiedEventName() 
+	{
+		return TOOL_NAME+"."+EVENT_NAME;
 	}
 }
