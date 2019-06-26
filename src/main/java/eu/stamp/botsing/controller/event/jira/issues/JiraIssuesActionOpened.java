@@ -1,4 +1,4 @@
-package eu.stamp.botsing.controller.event.github.issues;
+package eu.stamp.botsing.controller.event.jira.issues;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +18,9 @@ import eu.stamp.botsing.service.GitHubService;
 
 @Configurable
 @Component
-public class GitHubIssuesActionOpened  extends BotsingExecutor implements GitHubIssuesAction{
+public class JiraIssuesActionOpened  extends BotsingExecutor implements JiraIssuesAction{
 
-	Logger log = LoggerFactory.getLogger(GitHubIssuesActionOpened.class);
+	Logger log = LoggerFactory.getLogger(JiraIssuesActionOpened.class);
 
 	@Autowired
 	@Qualifier ("configuration")
@@ -54,7 +54,7 @@ public class GitHubIssuesActionOpened  extends BotsingExecutor implements GitHub
 	@Override
 	public void applyFilter(JsonObject jsonObject) throws FilteredActionException 
 	{
-		this.actionFilter.apply(GitHubIssuesAction.EVENT_NAME, ACTION_OPENED,jsonObject);	
+		this.actionFilter.apply(JiraIssuesAction.EVENT_NAME, ACTION_OPENED,jsonObject);	
 	}
 
 

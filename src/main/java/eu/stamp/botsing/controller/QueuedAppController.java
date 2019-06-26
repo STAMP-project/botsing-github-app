@@ -11,9 +11,9 @@ import eu.stamp.botsing.controller.ActionManager;
 import eu.stamp.botsing.controller.AppController;
 import eu.stamp.botsing.controller.event.Action;
 import eu.stamp.botsing.controller.event.EventFactory;
+import eu.stamp.botsing.controller.event.InvalidActionException;
 import eu.stamp.botsing.controller.event.InvalidEventException;
 import eu.stamp.botsing.controller.event.filter.FilteredActionException;
-import eu.stamp.botsing.controller.event.github.issues.InvalidActionException;
 import eu.stamp.botsing.controller.queues.QueueManager;
 import eu.stamp.botsing.controller.queues.QueueSubscriber;
 

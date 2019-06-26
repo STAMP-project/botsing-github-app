@@ -15,17 +15,16 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.stamp.botsing.controller.ActionManager;
 import eu.stamp.botsing.controller.QueuedAppController;
 import eu.stamp.botsing.controller.event.EventFactory;
+import eu.stamp.botsing.controller.event.InvalidActionException;
 import eu.stamp.botsing.controller.event.InvalidEventException;
 import eu.stamp.botsing.controller.event.ResponseBean;
 import eu.stamp.botsing.controller.event.filter.FilteredActionException;
-import eu.stamp.botsing.controller.event.github.issues.InvalidActionException;
-import eu.stamp.botsing.controller.event.jira.JiraActionFactory;
 
 @RestController
 @RequestMapping("/jira")
 public class JiraAppController extends QueuedAppController{
 
-
+	public static final String TOOL_NAME = "jira";
 
 	private Logger log = LoggerFactory.getLogger(JiraAppController.class);
 
@@ -36,7 +35,7 @@ public class JiraAppController extends QueuedAppController{
 
 
 	@PostMapping(value = "/botsing-jira-app")
-	public ResponseEntity<String> getPullRequestFullBody(HttpServletRequest request,@RequestHeader(value = "X-GitHub-Event", defaultValue = "")  String eventType) {
+	public ResponseEntity<String> getPullRequestFullBody(HttpServletRequest request,@RequestHeader(value = "X-Jira-Event", defaultValue = "")  String eventType) {
 
 		
 		
@@ -49,7 +48,7 @@ public class JiraAppController extends QueuedAppController{
 				
 			try
 			{
-				ActionManager actionManager = super.getAction(request,JiraActionFactory.TOOL_NAME, eventType);
+				ActionManager actionManager = super.getAction(request,TOOL_NAME, eventType);
 				responseBean =  actionManager.executeAction();
 				
 			} 

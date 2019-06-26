@@ -15,16 +15,15 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.stamp.botsing.controller.ActionManager;
 import eu.stamp.botsing.controller.QueuedAppController;
 import eu.stamp.botsing.controller.event.EventFactory;
+import eu.stamp.botsing.controller.event.InvalidActionException;
 import eu.stamp.botsing.controller.event.InvalidEventException;
 import eu.stamp.botsing.controller.event.ResponseBean;
 import eu.stamp.botsing.controller.event.filter.FilteredActionException;
-import eu.stamp.botsing.controller.event.github.GitHubActionFactory;
-import eu.stamp.botsing.controller.event.github.issues.InvalidActionException;
 
 @RestController
 public class GitHubAppController extends QueuedAppController{
 
-
+	public static final String TOOL_NAME = "github";
 
 	private Logger log = LoggerFactory.getLogger(GitHubAppController.class);
 
@@ -47,7 +46,7 @@ public class GitHubAppController extends QueuedAppController{
 				
 			try
 			{
-				ActionManager actionManager = super.getAction(request,GitHubActionFactory.TOOL_NAME, eventType);
+				ActionManager actionManager = super.getAction(request,TOOL_NAME, eventType);
 				responseBean =  actionManager.executeAction();
 				
 			} 

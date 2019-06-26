@@ -12,9 +12,9 @@ import com.google.gson.JsonObject;
 
 import eu.stamp.botsing.controller.event.ActionFactory;
 import eu.stamp.botsing.controller.event.EventFactory;
+import eu.stamp.botsing.controller.event.InvalidActionException;
 import eu.stamp.botsing.controller.event.InvalidEventException;
 import eu.stamp.botsing.controller.event.filter.FilteredActionException;
-import eu.stamp.botsing.controller.event.github.issues.InvalidActionException;
 import eu.stamp.botsing.controller.utils.JsonMethods;
 
 
@@ -23,9 +23,6 @@ public abstract class AppController {
 	private Logger log = LoggerFactory.getLogger(AppController.class);
 	
 	private EventFactory eventFactory;
-
-
-
 
 	protected ActionManager getAction (HttpServletRequest request,String toolName,String eventType) throws InvalidEventException, IOException, InvalidActionException, FilteredActionException 
 	{
