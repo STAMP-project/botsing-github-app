@@ -22,7 +22,7 @@ import eu.stamp.botsing.controller.event.filter.ConfigurationBasedLabelActionFil
 import eu.stamp.botsing.controller.event.github.issues.GitHubIssuesActionFactoryImpl;
 import eu.stamp.botsing.controller.event.github.issues.GitHubIssuesActionOpened;
 import eu.stamp.botsing.controller.github.GitHubAppController;
-import eu.stamp.botsing.service.GitHubService;
+import eu.stamp.botsing.service.github.GitHubService;
 import eu.stamp.botsing.utility.ConfigurationBean;
 
 @RunWith(SpringRunner.class)

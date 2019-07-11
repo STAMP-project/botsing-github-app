@@ -35,10 +35,8 @@ public class JiraAppController extends QueuedAppController{
 
 
 	@PostMapping(value = "/botsing-jira-app")
-	public ResponseEntity<String> getPullRequestFullBody(HttpServletRequest request,@RequestHeader(value = "X-Jira-Event", defaultValue = "")  String eventType) {
-
-		
-		
+	public ResponseEntity<String> getPullRequestFullBody(HttpServletRequest request,@RequestHeader(value = "X-Jira-Event", defaultValue = "")  String eventType) 
+	{
 		ResponseEntity<String> response = null;
 		
 		try 

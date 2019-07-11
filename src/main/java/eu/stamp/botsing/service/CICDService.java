@@ -1,19 +1,17 @@
 package eu.stamp.botsing.service;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.Properties;
 
 public interface CICDService 
 {
 
-	String getRawFile(String repositoryName, String repositoryOwner, String filePath) throws IOException;
+	Properties getInputProperties(BotsingParameters parameters) throws Exception;
 
-	String getIssueBody(String repositoryName, String repositoryOwner, String issueNumber) throws IOException;
+	String getData(BotsingParameters parameters) throws Exception;
 
-	String createIssueComment(String repositoryName, String repositoryOwner, String issueNumber, String comment)
-			throws IOException;
+	String sendDataString (BotsingParameters parameters, String dataString) throws Exception;
 
-	String sendFile(String repositoryName, String repositoryOwner, String issueNumber, File file)
-			throws IOException;
+	String sendDataFile(BotsingParameters parameters, File file)throws Exception;
 
 }

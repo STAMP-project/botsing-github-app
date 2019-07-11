@@ -14,7 +14,8 @@ import eu.stamp.botsing.controller.event.ResponseBean;
 import eu.stamp.botsing.controller.event.actions.BotsingExecutor;
 import eu.stamp.botsing.controller.event.filter.ActionFilter;
 import eu.stamp.botsing.controller.event.filter.FilteredActionException;
-import eu.stamp.botsing.service.GitHubService;
+import eu.stamp.botsing.service.BotsingParameters;
+import eu.stamp.botsing.service.jira.JiraService;
 
 @Configurable
 @Component
@@ -60,18 +61,17 @@ public class JiraIssuesActionOpened  extends BotsingExecutor implements JiraIssu
 
 	private BotsingParameters extractFromJson(JsonObject jsonObject) 
 	{
-		BotsingParameters response = new BotsingParameters();
-		response.repositoryName = jsonObject.get("repository").getAsJsonObject().get("name").getAsString();
-		response.repositoryURL  = jsonObject.get("repository").getAsJsonObject().get("html_url").getAsString();
-		response.repositoryOwner = jsonObject.get("repository").getAsJsonObject().get("owner").getAsJsonObject().get("login").getAsString();
-		response.issueNumber = jsonObject.get("issue").getAsJsonObject().get("number").getAsString();
-		response.issueBody = jsonObject.get("issue").getAsJsonObject().get("body").getAsString();		
+		BotsingParameters response = new BotsingParameters(jsonObject.get("issue").getAsJsonObject().get("number").getAsString(), 
+				jsonObject.get("repository").getAsJsonObject().get("name").getAsString(),jsonObject.get("repository").getAsJsonObject().get("html_url").getAsString(),
+				jsonObject.get("repository").getAsJsonObject().get("owner").getAsJsonObject().get("login").getAsString(), 
+				jsonObject.get("issue").getAsJsonObject().get("body").getAsString());
+
 		return response;
 	}
 
 
 	@Autowired
-	public void setGitHubService (GitHubService service)
+	public void setJiraService (JiraService service)
 	{
 		super.setService(service);
 		
