@@ -1,5 +1,6 @@
 package eu.stamp.botsing.utility;
 
+import org.eclipse.egit.github.core.client.IGitHubConstants;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -16,11 +17,8 @@ public class ConfigurationBean {
 	private String githubAcceptedLabel;
 	private String proxyHost;
 	private Integer proxyPort;
+	private String githubURL;
 	
-	private String jiraURL;
-	private String jiraUsername;
-	private String jiraPassword;
-
 	public String getGithubOAuth2Token() {
 		return githubOAuth2Token;
 	}
@@ -77,30 +75,15 @@ public class ConfigurationBean {
 		this.githubAcceptedLabel = githubAcceptedLabel;
 	}
 
-	public String getJiraURL() {
-		return jiraURL;
+	public String getGithubURL() {
+		return githubURL;
 	}
 
-	public void setJiraURL(String jiraURL) {
-		this.jiraURL = jiraURL;
+	public void setGithubURL(String githubURL) {
+		this.githubURL = githubURL;
 	}
 
-	public String getJiraUsername() {
-		return jiraUsername;
-	}
-
-	public void setJiraUsername(String jiraUsername) {
-		this.jiraUsername = jiraUsername;
-	}
-
-	public String getJiraPassword() {
-		return jiraPassword;
-	}
-
-	public void setJiraPassword(String jiraPassword) {
-		this.jiraPassword = jiraPassword;
-	}
-
+	
 
 	
 

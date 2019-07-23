@@ -33,6 +33,7 @@ public class QueuePublisher implements Action {
 		this.event = event;
 		this.action = action;
 		this.qualifiedName=event+"."+action;
+		this.toolName = toolName;
 	}
 	
 

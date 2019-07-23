@@ -11,14 +11,15 @@ import eu.stamp.botsing.controller.event.Action;
 import eu.stamp.botsing.controller.event.ActionFactory;
 import eu.stamp.botsing.controller.event.InvalidActionException;
 import eu.stamp.botsing.controller.event.filter.FilteredActionException;
-import eu.stamp.botsing.controller.event.issues.IssuesActionFactoryImpl;
 import eu.stamp.botsing.controller.jira.JiraAppController;
 
 
 
 @Component 
-public class JiraIssuesActionFactoryImpl  extends IssuesActionFactoryImpl implements ActionFactory{
+public class JiraIssuesActionFactoryImpl  implements ActionFactory{
 
+	private JiraIssuesAction action;
+	
 	public JiraIssuesActionFactoryImpl() {
 		super ();
 	}
@@ -28,17 +29,16 @@ public class JiraIssuesActionFactoryImpl  extends IssuesActionFactoryImpl implem
 	public Action getAction(JsonObject jsonObject)
 			throws InvalidActionException, FilteredActionException { 
 	 
-		return super.getAction(jsonObject);
+		return this.action;
 	}
 
 	
 	@Autowired
 	public void setJiraIssuesActions (List<JiraIssuesAction> actions)
 	{
-		for (JiraIssuesAction action : actions)
-		{
-			this.addAction(action);
-		}
+		// Unique default action
+		this.action = actions.get(0);
+
 	}
 
 	@Override

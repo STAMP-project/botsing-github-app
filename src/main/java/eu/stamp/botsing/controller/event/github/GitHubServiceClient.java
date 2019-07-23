@@ -1,4 +1,4 @@
-package eu.stamp.botsing.service.github;
+package eu.stamp.botsing.controller.event.github;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,22 +25,33 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import eu.stamp.botsing.service.BotsingParameters;
-import eu.stamp.botsing.service.CICDService;
+import eu.stamp.botsing.service.IssueParameters;
 import eu.stamp.botsing.utility.ConfigurationBean;
 
 @Service
-public class GitHubService implements CICDService 
-{
-	Logger log = LoggerFactory.getLogger(GitHubService.class);
+public class GitHubServiceClient {
+
+	Logger log = LoggerFactory.getLogger(GitHubServiceClient.class);
 	private final String BOTSING_FILE= ".botsing";	
+	
 	private GitHubClient client;
 	private String file;
 	
-	public GitHubService(ConfigurationBean configuration) 
+	private final String GROUP_ID = "group_id";
+	private final String ARTIFACT_ID = "artifact_id";
+	private final String VERSION = "version";
+	private final String SEARCH_BUDGET = "search_budget";
+	private final String GLOBAL_TIMEOUT = "global_timeout";
+	private final String POPULATION = "population";
+	private final String PACKAGE_FILTER = "package_filter";
+	
+	public GitHubServiceClient(ConfigurationBean configuration) 
 	{
 		super();
-		client = new GitHubClient();
-
+		String gitHubURL = configuration.getGithubURL();
+		
+		client = gitHubURL == null || gitHubURL.trim().isEmpty() ? new GitHubClient() : new GitHubClient(gitHubURL);
+		
 		// set credentials
 		if (configuration.getGithubOAuth2Token() != null || configuration.getGithubOAuth2Token().length() > 0) {
 			client.setOAuth2Token(configuration.getGithubOAuth2Token());
@@ -61,32 +72,20 @@ public class GitHubService implements CICDService
 		
 		this.file = BOTSING_FILE;
 	}
+	
+	
 
-//	public String createPullRequest(String repositoryName, String repositoryOwner, String pullRequestTitle,
-//			String pullRequestBody, String branchSource, String branchDestination) throws IOException 
-//	{
-//		log.debug("Creating pull request");
-//
-//		RepositoryService repoService = new RepositoryService(client);
-//		Repository repository = repoService.getRepository(repositoryOwner, repositoryName);
-//
-//		PullRequestService service = new PullRequestService(client);
-//
-//		PullRequest request = new PullRequest();
-//		request.setTitle(pullRequestTitle);
-//		request.setBody(pullRequestBody);
-//
-//		request.setHead(new PullRequestMarker().setRef(branchSource).setLabel(branchSource));
-//		request.setBase(new PullRequestMarker().setRef(branchDestination).setLabel(branchDestination));
-//
-//		PullRequest pr = service.createPullRequest(repository, request);
-//		log.debug("Pull request '" + pr.getId() + "' created");
-//
-//		return pr.getHtmlUrl();
-//	}
-
-	@Override
-	public Properties getInputProperties(BotsingParameters parameters) throws IOException {
+	
+	public BotsingParameters getBotsingParameters (IssueParameters issueParameters) throws IOException
+	{
+		Properties botsingProperties = getInputProperties(issueParameters);
+		
+		return new BotsingParameters(botsingProperties.getProperty(GROUP_ID), botsingProperties.getProperty(ARTIFACT_ID),
+				botsingProperties.getProperty(VERSION), botsingProperties.getProperty(SEARCH_BUDGET), botsingProperties.getProperty(GLOBAL_TIMEOUT),
+				botsingProperties.getProperty(POPULATION), botsingProperties.getProperty(PACKAGE_FILTER));		
+	}
+	
+	private Properties getInputProperties(IssueParameters parameters) throws IOException {
 		log.debug("Reading file '" + this.file + "'");
 		Properties botsingProperties = null;
 
@@ -122,10 +121,26 @@ public class GitHubService implements CICDService
 		}
 		return botsingProperties;
 	}
+	
+	
+	public String sendDataString(IssueParameters parameters, String dataString) throws IOException {
+		IssueService issueService = new IssueService(client);
+		Comment issueComment = issueService.createComment(parameters.getRepositoryOwner(), parameters.getRepositoryName(), parameters.getIssueNumber(), dataString);
 
+		return issueComment.getBody();
+	}
+	
+	public String sendDataFile(IssueParameters parameters, File file) throws IOException 
+	{
+		log.debug("Creating new issue comment with file");
+		String comment = new String(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
+		IssueService issueService = new IssueService(client);
+		Comment issueComment = issueService.createComment(parameters.getRepositoryOwner(), parameters.getRepositoryName(), parameters.getIssueNumber(), comment);
+		log.debug("Issue comment created");
+		return issueComment.getBody();
+	}
 
-	@Override
-	public String getData(BotsingParameters parameters) throws IOException {
+	public String getIssueData(IssueParameters parameters) throws IOException {
 		log.debug("Reading issue");
 		String result = null;
 
@@ -137,30 +152,11 @@ public class GitHubService implements CICDService
 		log.debug("Read issue");
 		return result;
 	}
-
-	@Override
-	public String sendDataString(BotsingParameters parameters, String dataString) throws IOException {
-		IssueService issueService = new IssueService(client);
-		Comment issueComment = issueService.createComment(parameters.getRepositoryOwner(), parameters.getRepositoryName(), parameters.getIssueNumber(), dataString);
-
-		return issueComment.getBody();
-	}
-
-	@Override
-	public String sendDataFile(BotsingParameters parameters, File file) throws IOException 
+	
+	public void setFile (String file)
 	{
-		log.debug("Creating new issue comment with file");
-		String comment = new String(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
-		IssueService issueService = new IssueService(client);
-		Comment issueComment = issueService.createComment(parameters.getRepositoryOwner(), parameters.getRepositoryName(), parameters.getIssueNumber(), comment);
-		log.debug("Issue comment created");
-		return issueComment.getBody();
-	}
-
-	public void setFile(String file) {
 		this.file = file;
 	}
-	
-	
+
 
 }
