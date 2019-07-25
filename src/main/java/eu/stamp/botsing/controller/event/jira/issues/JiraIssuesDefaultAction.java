@@ -2,9 +2,7 @@ package eu.stamp.botsing.controller.event.jira.issues;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonObject;
@@ -13,7 +11,6 @@ import eu.stamp.botsing.controller.ActionObject;
 import eu.stamp.botsing.controller.event.ResponseBean;
 import eu.stamp.botsing.controller.event.actions.BotsingExecutor;
 import eu.stamp.botsing.controller.event.actions.BotsingExecutor.BotsingResult;
-import eu.stamp.botsing.controller.event.filter.ActionFilter;
 import eu.stamp.botsing.controller.event.filter.FilteredActionException;
 import eu.stamp.botsing.controller.event.jira.JiraJSonManager;
 import eu.stamp.botsing.controller.event.jira.JiraServiceClient;

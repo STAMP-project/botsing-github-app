@@ -27,12 +27,12 @@ public class JiraServiceClient {
 		this.endpoint = new URI(endpoint);
 	}
 	
-	public boolean sendData (String issueKey, File testFile, File scaffoldingTestFile) throws IOException
+	public boolean sendData (String issueKey, byte[] testFileByte, byte [] scaffoldingTestFileByte) throws IOException
 	{
 		JsonObject jsonObject = new JsonObject();
 		jsonObject.addProperty("issueKey", issueKey);
-		jsonObject.addProperty ("botsingTestBody",Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(testFile.getAbsolutePath()))));
-		jsonObject.addProperty ("botsingScaffoldingTestBody",Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(scaffoldingTestFile.getAbsolutePath()))));
+		jsonObject.addProperty ("botsingTestBody",Base64.getEncoder().encodeToString(testFileByte));
+		jsonObject.addProperty ("botsingScaffoldingTestBody",Base64.getEncoder().encodeToString(scaffoldingTestFileByte));
 		HttpHeaders headers = new HttpHeaders();
 	    headers.setContentType(MediaType.APPLICATION_JSON);
 		RestTemplate restTemplate = new RestTemplate();
@@ -48,5 +48,11 @@ public class JiraServiceClient {
 			this.log.error("Received status "+responseEntity.getStatusCode());
 			return false;
 		}
+	}
+	
+	public boolean sendData (String issueKey, File testFile, File scaffoldingTestFile) throws IOException
+	{
+		return sendData(issueKey, Files.readAllBytes(Paths.get(testFile.getAbsolutePath())), Files.readAllBytes(Paths.get(scaffoldingTestFile.getAbsolutePath())));
+
 	}
 }
