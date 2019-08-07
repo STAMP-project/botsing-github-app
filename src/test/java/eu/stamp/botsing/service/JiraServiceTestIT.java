@@ -23,9 +23,7 @@ public class JiraServiceTestIT {
 	private final String ADDRESS = "http://localhost:8080/jira/rest/botsing-config/1.0/reproduction/PL-23/add";
 	private final String 	TEST_ID ="testID",
 							TEST_FILE = "this is a test file",
-							TEST_SCAFFOLDING_FILE = "this is a scaffolding file";
-	
-
+							TEST_SCAFFOLDING_FILE = "this is a scaffolding file";	
 
 	@Before
 	public void before() throws URISyntaxException {
@@ -35,7 +33,7 @@ public class JiraServiceTestIT {
 
 	@Test
 	public void sendDataTest() throws IOException {
-		boolean response = this.jiraServiceClient.sendData("stamp", "stampats", TEST_ID, TEST_FILE.getBytes(),
+		boolean response = this.jiraServiceClient.sendData("user", "password", TEST_ID, TEST_FILE.getBytes(),
 				TEST_SCAFFOLDING_FILE.getBytes());
 
 		assertTrue(response);
