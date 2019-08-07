@@ -15,7 +15,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import eu.stamp.botsing.controller.event.jira.JiraServiceClient;
 
 @RunWith(SpringRunner.class)
-
 public class JiraServiceTestIT {
 
 	Logger log = LoggerFactory.getLogger(JiraServiceTestIT.class);
@@ -33,15 +32,13 @@ public class JiraServiceTestIT {
 		this.jiraServiceClient = new JiraServiceClient(ADDRESS);
 
 	}
-	
+
 	@Test
-	public void sendDataTest () throws IOException
-	{
-		boolean response= 	this.jiraServiceClient.sendData(TEST_ID, TEST_FILE.getBytes(), TEST_SCAFFOLDING_FILE.getBytes());
+	public void sendDataTest() throws IOException {
+		boolean response = this.jiraServiceClient.sendData("stamp", "stampats", TEST_ID, TEST_FILE.getBytes(),
+				TEST_SCAFFOLDING_FILE.getBytes());
 
 		assertTrue(response);
 	}
-
-
 
 }

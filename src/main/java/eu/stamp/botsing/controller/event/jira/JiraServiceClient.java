@@ -22,23 +22,31 @@ public class JiraServiceClient {
 
 	private Logger log = LoggerFactory.getLogger(JiraServiceClient.class);
 	private URI endpoint;
-	
+
 	public JiraServiceClient(String endpoint) throws URISyntaxException {
 		this.endpoint = new URI(endpoint);
 	}
-	
-	public boolean sendData (String issueKey, byte[] testFileByte, byte [] scaffoldingTestFileByte) throws IOException
+
+	public boolean sendData (String username, String password, String issueKey, byte[] testFileByte, byte [] scaffoldingTestFileByte) throws IOException
 	{
 		JsonObject jsonObject = new JsonObject();
 		jsonObject.addProperty("issueKey", issueKey);
-		jsonObject.addProperty ("botsingTestBody",Base64.getEncoder().encodeToString(testFileByte));
-		jsonObject.addProperty ("botsingScaffoldingTestBody",Base64.getEncoder().encodeToString(scaffoldingTestFileByte));
+		jsonObject.addProperty("botsingTestBody", Base64.getEncoder().encodeToString(testFileByte));
+		jsonObject.addProperty("botsingScaffoldingTestBody", Base64.getEncoder().encodeToString(scaffoldingTestFileByte));
+
 		HttpHeaders headers = new HttpHeaders();
-	    headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setContentType(MediaType.APPLICATION_JSON);
+
+		String plainClientCredentials = username + ":" + password;
+		String base64ClientCredentials = new String(Base64.getEncoder().encode(plainClientCredentials.getBytes()));
+		headers.add("Authorization", "Basic " + base64ClientCredentials);
+
 		RestTemplate restTemplate = new RestTemplate();
 		HttpEntity<String> request = new HttpEntity<String>(jsonObject.toString(), headers);
+
 		ResponseEntity<String> responseEntity = restTemplate.postForEntity(this.endpoint, request, String.class);
-		if (responseEntity.getStatusCode().is2xxSuccessful()) 
+
+		if (responseEntity.getStatusCode().is2xxSuccessful())
 		{
 			this.log.debug("Data sent");
 			return true;
@@ -49,10 +57,10 @@ public class JiraServiceClient {
 			return false;
 		}
 	}
-	
-	public boolean sendData (String issueKey, File testFile, File scaffoldingTestFile) throws IOException
+
+	public boolean sendData (String username, String password, String issueKey, File testFile, File scaffoldingTestFile) throws IOException
 	{
-		return sendData(issueKey, Files.readAllBytes(Paths.get(testFile.getAbsolutePath())), Files.readAllBytes(Paths.get(scaffoldingTestFile.getAbsolutePath())));
+		return sendData(username, password, issueKey, Files.readAllBytes(Paths.get(testFile.getAbsolutePath())), Files.readAllBytes(Paths.get(scaffoldingTestFile.getAbsolutePath())));
 
 	}
 }
