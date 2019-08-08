@@ -48,7 +48,6 @@ public class JiraIssuesDefaultAction  extends JiraJSonManager implements JiraIss
 		switch (botsingExecutorResponse)
 		{
 		case OK:
-			// TODO find a better way to get the user credential to access to jira services
 			boolean clientResponse = client.sendData(getJiraServiceEndpoint(jsonObject), issueParameters.getIssueNumber(), botsingExecutor.getTestFile(), botsingExecutor.getScaffoldingTestFile());
 
 			result = clientResponse ?  new ResponseBean(200,"Botsing executed succesfully with reproduction test."):

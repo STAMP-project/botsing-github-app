@@ -1,6 +1,7 @@
 package eu.stamp.botsing.runner;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNotNull;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,11 +50,16 @@ public class MavenRunnerTestIT {
 
 	@Test
 	public void runBotsingReproductionTest() throws Exception {
-		System.out.println("SONO QUI*************************************");
 
-		BotsingParameters botsingParameters = new BotsingParameters(groupId, artifactId, version, searchBudget, globalTimeout, population, packageFilter);
-		BotsingExecutor executor = new BotsingExecutor (botsingParameters,crashLog);
+		BotsingParameters botsingParameters = new BotsingParameters(groupId, artifactId, version, searchBudget,
+				globalTimeout, population, packageFilter);
+		BotsingExecutor executor = new BotsingExecutor(botsingParameters, crashLog);
+
 		BotsingResult botsingResult = executor.runBotsing();
-		assertArrayEquals(new Object [] {botsingResult}, new Object [] {BotsingResult.OK});
+
+		assertArrayEquals(new Object[] { botsingResult }, new Object[] { BotsingResult.OK });
+
+		assertNotNull(executor.getTestFile());
+		assertNotNull(executor.getScaffoldingTestFile());
 	}
 }

@@ -13,9 +13,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import eu.stamp.botsing.controller.event.jira.JiraServiceClient;
+import eu.stamp.botsing.utility.ConfigurationBean;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { JiraServiceClient.class })
+@SpringBootTest(classes = { JiraServiceClient.class,  ConfigurationBean.class })
 public class JiraServiceTestIT {
 
 	Logger log = LoggerFactory.getLogger(JiraServiceTestIT.class);
