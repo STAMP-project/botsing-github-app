@@ -28,6 +28,7 @@ public class JiraIssuesDefaultAction  extends JiraJSonManager implements JiraIss
 	private final String 	DEFAULT_ACTION ="default",
 							QUALIFIED_ACTION_NAME = EVENT_NAME+"."+DEFAULT_ACTION;
 
+	private JiraServiceClient client;
 
 	public JiraIssuesDefaultAction() {
 
@@ -47,9 +48,8 @@ public class JiraIssuesDefaultAction  extends JiraJSonManager implements JiraIss
 		switch (botsingExecutorResponse)
 		{
 		case OK:
-			JiraServiceClient client = new JiraServiceClient(this.getJiraServiceEndpoint(jsonObject));
 			// TODO find a better way to get the user credential to access to jira services
-			boolean clientResponse = client.sendData("user", "password", issueParameters.getIssueNumber(), botsingExecutor.getTestFile(), botsingExecutor.getScaffoldingTestFile());
+			boolean clientResponse = client.sendData(getJiraServiceEndpoint(jsonObject), issueParameters.getIssueNumber(), botsingExecutor.getTestFile(), botsingExecutor.getScaffoldingTestFile());
 
 			result = clientResponse ?  new ResponseBean(200,"Botsing executed succesfully with reproduction test."):
 				new ResponseBean(502,"Botsing executed succesfully but invalid response from jira");
