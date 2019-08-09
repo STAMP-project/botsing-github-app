@@ -2,6 +2,7 @@ package eu.stamp.botsing.controller.event.jira.issues;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Component;
 
@@ -23,20 +24,19 @@ public class JiraIssuesDefaultAction  extends JiraJSonManager implements JiraIss
 
 	Logger log = LoggerFactory.getLogger(JiraIssuesDefaultAction.class);
 
-
-
 	private final String 	DEFAULT_ACTION ="default",
 							QUALIFIED_ACTION_NAME = EVENT_NAME+"."+DEFAULT_ACTION;
 
 	private JiraServiceClient client;
 
-	public JiraIssuesDefaultAction() {
-
+	@Autowired
+	public JiraIssuesDefaultAction(JiraServiceClient client) {
+		this.client = client;
 	}
 
 	@Override
-	public ResponseBean execute (ActionObject actionObject) throws Exception
-	{
+	public ResponseBean execute (ActionObject actionObject) throws Exception {
+
 		JsonObject jsonObject = actionObject.getJsonObject();
 		BotsingParameters botsingParameters = getBotsingParameters(jsonObject);
 		IssueParameters issueParameters = getIssueParameters(jsonObject);
@@ -45,18 +45,22 @@ public class JiraIssuesDefaultAction  extends JiraJSonManager implements JiraIss
 
 		ResponseBean result = null;
 
-		switch (botsingExecutorResponse)
-		{
-		case OK:
-			boolean clientResponse = client.sendData(getJiraServiceEndpoint(jsonObject), issueParameters.getIssueNumber(), botsingExecutor.getTestFile(), botsingExecutor.getScaffoldingTestFile());
+		switch (botsingExecutorResponse) {
 
-			result = clientResponse ?  new ResponseBean(200,"Botsing executed succesfully with reproduction test."):
-				new ResponseBean(502,"Botsing executed succesfully but invalid response from jira");
+		case OK:
+			boolean clientResponse = client.sendData(getJiraServiceEndpoint(jsonObject),
+					issueParameters.getIssueNumber(), botsingExecutor.getTestFile(),
+					botsingExecutor.getScaffoldingTestFile());
+
+			result = clientResponse ? new ResponseBean(200, "Botsing executed succesfully with reproduction test.")
+					: new ResponseBean(502, "Botsing executed succesfully but invalid response from jira");
 
 			break;
+
 		case FAIL:
 			result = new ResponseBean(500,"Error executing Botsing");
 			break;
+
 		case NO_FILES:
 			result = new ResponseBean(304, "Botsing did not generate any reproduction test.");
 			break;
@@ -65,27 +69,18 @@ public class JiraIssuesDefaultAction  extends JiraJSonManager implements JiraIss
 		return result;
 	}
 
-
-
 	@Override
-	public String getActionName()
-	{
+	public String getActionName() {
 		return DEFAULT_ACTION;
 	}
 
 	@Override
-	public String getQualifiedActionName()
-	{
-		return  QUALIFIED_ACTION_NAME;
+	public String getQualifiedActionName() {
+		return QUALIFIED_ACTION_NAME;
 	}
 
 	@Override
-	public void applyFilter(JsonObject jsonObject) throws FilteredActionException
-	{
-
+	public void applyFilter(JsonObject jsonObject) throws FilteredActionException {
 	}
-
-
-
 
 }
