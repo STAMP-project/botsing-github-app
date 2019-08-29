@@ -2,7 +2,6 @@ package eu.stamp.botsing.controller.event.jira.issues;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Component;
 
@@ -11,62 +10,82 @@ import com.google.gson.JsonObject;
 import eu.stamp.botsing.controller.ActionObject;
 import eu.stamp.botsing.controller.event.ResponseBean;
 import eu.stamp.botsing.controller.event.actions.BotsingExecutor;
-import eu.stamp.botsing.controller.event.actions.BotsingExecutor.BotsingResult;
+import eu.stamp.botsing.controller.event.actions.BotsingResultManager;
 import eu.stamp.botsing.controller.event.filter.FilteredActionException;
-import eu.stamp.botsing.controller.event.jira.JiraJSonManager;
-import eu.stamp.botsing.controller.event.jira.JiraServiceClient;
-import eu.stamp.botsing.service.BotsingParameters;
-import eu.stamp.botsing.service.IssueParameters;
+import eu.stamp.botsing.controller.event.jira.JiraBotsingExecutor;
+import eu.stamp.botsing.utility.ConfigurationBean;
 
 @Configurable
 @Component
-public class JiraIssuesDefaultAction  extends JiraJSonManager implements JiraIssuesAction{
+public class JiraIssuesDefaultAction  implements JiraIssuesAction{
 
 	Logger log = LoggerFactory.getLogger(JiraIssuesDefaultAction.class);
-
+	private ConfigurationBean configuration;
+	
 	private final String 	DEFAULT_ACTION ="default",
 							QUALIFIED_ACTION_NAME = EVENT_NAME+"."+DEFAULT_ACTION;
 
-	private JiraServiceClient client;
 
-	@Autowired
-	public JiraIssuesDefaultAction(JiraServiceClient client) {
-		this.client = client;
+	public JiraIssuesDefaultAction(ConfigurationBean configuration) {
+		this.configuration = configuration;
 	}
 
+
+//	private ResponseBean parseResponse (BotsingJiraDataBean botsingJiraDataBean)
+//	{
+//
+//		ResponseBean response = null;
+//		int status = 0;
+//		String message = null;
+//		
+//		try
+//		{
+//			switch (botsingExecutorResponse.getResult()) 
+//			{
+//
+//			case OK:
+//				response = client.sendData(botsingJiraDataBean.getServiceEndpoint(),
+//							botsingJiraDataBean.getIssueParameters().getIssueNumber(), botsingExecutorResponse.getTestFile(),
+//							botsingExecutorResponse.getScaffoldingTestFile());
+//		
+//
+//				break;
+//
+//			case FAIL:
+//				status = 500;
+//				message = "Error executing Botsing";
+//				response = client.sendErrorMessage(botsingJiraDataBean.getServiceEndpoint(), status,message, botsingExecutorResponse.getLog());
+//				break;
+//
+//			case NO_FILES:
+//				status = 304;
+//				message = "Botsing did not generate any reproduction test";
+//				response = client.sendErrorMessage(botsingJiraDataBean.getServiceEndpoint(), status,message, botsingExecutorResponse.getLog());
+//				
+//				break;
+//			}
+//		} catch (IOException e)
+//		{
+//			response = new ResponseBean (status,message+" unable to notify jira for an internal error");
+//		}
+//		
+//
+//
+//
+//		
+//		
+//		return response;
+//	}
+	
 	@Override
 	public ResponseBean execute (ActionObject actionObject) throws Exception {
 
 		JsonObject jsonObject = actionObject.getJsonObject();
-		BotsingParameters botsingParameters = getBotsingParameters(jsonObject);
-		IssueParameters issueParameters = getIssueParameters(jsonObject);
-		BotsingExecutor botsingExecutor = new BotsingExecutor (botsingParameters, issueParameters.getIssueBody());
-		BotsingResult botsingExecutorResponse = botsingExecutor.runBotsing();
-
-		ResponseBean result = null;
-
-		switch (botsingExecutorResponse) {
-
-		case OK:
-			boolean clientResponse = client.sendData(getJiraServiceEndpoint(jsonObject),
-					issueParameters.getIssueNumber(), botsingExecutor.getTestFile(),
-					botsingExecutor.getScaffoldingTestFile());
-
-			result = clientResponse ? new ResponseBean(200, "Botsing executed succesfully with reproduction test.")
-					: new ResponseBean(502, "Botsing executed succesfully but invalid response from jira");
-
-			break;
-
-		case FAIL:
-			result = new ResponseBean(500,"Error executing Botsing");
-			break;
-
-		case NO_FILES:
-			result = new ResponseBean(304, "Botsing did not generate any reproduction test.");
-			break;
-		}
-
-		return result;
+		JiraDataBean botsingJiraDataBean = new JiraDataBean(jsonObject);
+		BotsingExecutor botsingExecutor = new JiraBotsingExecutor (botsingJiraDataBean.getBotsingParameters(), botsingJiraDataBean.getIssueParameters().getIssueBody(), this.configuration);
+		BotsingResultManager botsingResultManager = botsingExecutor.runBotsing();
+		this.log.debug("Botsing executed with result "+botsingResultManager.getBotsingResult());
+		return botsingResultManager.notifyToServer(botsingJiraDataBean);
 	}
 
 	@Override

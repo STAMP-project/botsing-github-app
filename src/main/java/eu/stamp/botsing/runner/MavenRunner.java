@@ -53,7 +53,8 @@ public class MavenRunner {
 	
 
 
-	private int executeProcess(File workDir, List<String> command) throws InterruptedException, IOException {
+	private int executeProcess(File workDir, List<String> command) throws InterruptedException, IOException 
+	{
 		ProcessBuilder builder = new ProcessBuilder(command);
 
 		builder.directory(workDir.getAbsoluteFile());

@@ -13,18 +13,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import eu.stamp.botsing.controller.event.github.GitHubServiceClient;
+import eu.stamp.botsing.controller.event.github.GitHubClientManager;
+import eu.stamp.botsing.controller.event.github.GitHubCommentManager;
+import eu.stamp.botsing.controller.event.github.GitHubDataManager;
 import eu.stamp.botsing.utility.ConfigurationBean;
 import eu.stamp.botsing.utility.ConfigurationBeanForIntegrationTests;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { GitHubServiceClient.class, ConfigurationBean.class, ConfigurationBeanForIntegrationTests.class})
+@SpringBootTest(classes = { GitHubClientManager.class, ConfigurationBean.class, ConfigurationBeanForIntegrationTests.class})
 public class GitHubServiceTestIT {
 
 	Logger log = LoggerFactory.getLogger(GitHubServiceTestIT.class);
 
 	@Autowired
-	GitHubServiceClient serviceClient;
+	GitHubClientManager clientManager;
 
 	@Autowired
 	ConfigurationBeanForIntegrationTests configuration;
@@ -38,24 +40,28 @@ public class GitHubServiceTestIT {
 		repoName = configuration.getRemoteGitRepoName();
 	}
 
+
 	@Test
 	public void shouldGetPomFileTest() throws Exception {
-		serviceClient.setFile("pom.xml");
-		BotsingParameters properties = serviceClient.getBotsingParameters(new IssueParameters(null, repoName, null, owner, null));
+		GitHubDataManager dataManager = new GitHubDataManager(clientManager, new IssueParameters(null, repoName, null, owner, null));
+		dataManager.setFile("pom.xml");
+		BotsingParameters properties = dataManager.getBotsingParameters();
 		assertNotNull(properties);
 	}
 
 	@Test
 	public void shouldReturnNullFileTest() throws IOException {
-		serviceClient.setFile("notexistingFile");
-		BotsingParameters properties = serviceClient.getBotsingParameters(new IssueParameters(null, repoName, null, owner, null));
+		GitHubDataManager dataManager = new GitHubDataManager(clientManager, new IssueParameters(null, repoName, null, owner, null));
+		dataManager.setFile("notexistingFile");
+		BotsingParameters properties = dataManager.getBotsingParameters();
 		assert(properties == null);
 	}
 
 	@Test
 	public void getRawFileTest() throws IOException {
-		serviceClient.setFile("pom.xml");
-		BotsingParameters properties = serviceClient.getBotsingParameters(new IssueParameters(null, repoName, null, owner, null));
+		GitHubDataManager dataManager = new GitHubDataManager(clientManager, new IssueParameters(null, repoName, null, owner, null));
+		dataManager.setFile("pom.xml");
+		BotsingParameters properties = dataManager.getBotsingParameters();
 		assertNotNull(properties);
 	}
 
@@ -66,13 +72,15 @@ public class GitHubServiceTestIT {
 
 	@Test
 	public void readIssueBodyIsNotNull() throws IOException {
-		String body = serviceClient.getIssueData(new IssueParameters("4", repoName, null, owner, null));
+		GitHubDataManager dataManager = new GitHubDataManager(clientManager, new IssueParameters("4", repoName, null, owner, null));
+		String body = dataManager.getIssueData();
 		assertNotNull(body);
 	}
 
 	@Test
 	public void createIssueCommentIsNotNull() throws IOException {
-		String body = serviceClient.sendDataString(new IssueParameters("4", repoName, null, owner, null), "Comment by github app");
+		GitHubCommentManager commentManager = new GitHubCommentManager(clientManager);
+		String body = commentManager.sendComment(new IssueParameters("4", repoName, null, owner, null), "Comment by github app");
 
 		assertNotNull(body);
 	}

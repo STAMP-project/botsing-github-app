@@ -1,10 +1,6 @@
 package eu.stamp.botsing.controller.event.jira;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Base64;
 
 import org.slf4j.Logger;
@@ -18,10 +14,10 @@ import org.springframework.web.client.RestTemplate;
 
 import com.google.gson.JsonObject;
 
+import eu.stamp.botsing.controller.event.ResponseBean;
 import eu.stamp.botsing.utility.ConfigurationBean;
 
-@Service
-public class JiraServiceClient {
+public abstract class JiraServiceClient {
 
 	private Logger log = LoggerFactory.getLogger(JiraServiceClient.class);
 
@@ -33,20 +29,16 @@ public class JiraServiceClient {
 		this.JiraPassword = configuration.getJiraPassword();
 	}
 
-	public boolean sendData (String callbackURL, String issueKey, byte[] testFileByte, byte [] scaffoldingTestFileByte) throws IOException
+	
+	protected ResponseBean forwardJSonMessage (String callbackURL,JsonObject jsonObject, int okStatus, int errorStatus, String okMessage, String errorMessage) 
 	{
-		JsonObject jsonObject = new JsonObject();
-		jsonObject.addProperty("issueKey", issueKey);
-		jsonObject.addProperty("botsingTestBody", Base64.getEncoder().encodeToString(testFileByte));
-		jsonObject.addProperty("botsingScaffoldingTestBody", Base64.getEncoder().encodeToString(scaffoldingTestFileByte));
-
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 
 		String plainClientCredentials = JiraUsername + ":" + JiraPassword;
 		String base64ClientCredentials = new String(Base64.getEncoder().encode(plainClientCredentials.getBytes()));
 		headers.add("Authorization", "Basic " + base64ClientCredentials);
-
+		
 		RestTemplate restTemplate = new RestTemplate();
 		HttpEntity<String> request = new HttpEntity<String>(jsonObject.toString(), headers);
 
@@ -55,18 +47,13 @@ public class JiraServiceClient {
 		if (responseEntity.getStatusCode().is2xxSuccessful())
 		{
 			this.log.debug("Data sent");
-			return true;
+			return new ResponseBean(okStatus, okMessage);
 		}
+					
 		else
 		{
 			this.log.error("Received status "+responseEntity.getStatusCode());
-			return false;
+			return new ResponseBean(errorStatus,errorMessage);
 		}
-	}
-
-	public boolean sendData (String callbackURL, String issueKey, File testFile, File scaffoldingTestFile) throws IOException
-	{
-		return sendData(callbackURL, issueKey, Files.readAllBytes(Paths.get(testFile.getAbsolutePath())), Files.readAllBytes(Paths.get(scaffoldingTestFile.getAbsolutePath())));
-
 	}
 }

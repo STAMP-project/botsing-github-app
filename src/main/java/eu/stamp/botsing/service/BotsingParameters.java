@@ -54,7 +54,7 @@ public class BotsingParameters {
 		return this.mandatoryParameters.get(VERSION);
 	}
 
-	public Map<String, String> getMandatoryParameters (File crashLogFile) throws InvalidParameterException
+	public void setCrashLogFile (File crashLogFile) throws InvalidParameterException
 	{
 		try
 		{
@@ -64,6 +64,11 @@ public class BotsingParameters {
 			throw new InvalidParameterException("Invalid crash file");
 		}
 		
+	}
+	
+	public Map<String, String> getMandatoryParameters () 
+	{
+
 		return this.mandatoryParameters;
 		
 		

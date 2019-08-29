@@ -3,7 +3,6 @@ package eu.stamp.botsing.controller.event.actions;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
@@ -17,25 +16,23 @@ import eu.stamp.botsing.runner.MavenRunner;
 import eu.stamp.botsing.service.BotsingParameters;
 import eu.stamp.botsing.utility.FileUtility;
 
-public class BotsingExecutor extends MavenRunner {
+public abstract class BotsingExecutor extends MavenRunner {
 
 	private Logger log = LoggerFactory.getLogger(BotsingExecutor.class);
 
 	private final String BOTSING_COMMAND = "eu.stamp-project:botsing-maven:botsing";
 	private BotsingParameters botsingParameters;
 	private String issueBody;
-	private File testFile, scaffoldingTestFile;
 
-	public enum BotsingResult {
-		OK, NO_FILES, FAIL;
-	}
 
 	public BotsingExecutor(BotsingParameters botsingParameters, String issueBody) {
 		this.botsingParameters = botsingParameters;
 		this.issueBody = issueBody;
 	}
 
-	public BotsingResult runBotsing() throws Exception {
+	public BotsingResultManager runBotsing() throws Exception 
+	{
+		BotsingResultManager resultManager;
 		File workingDir = Files.createTempDir();
 		this.log.debug("Running botsing...");
 
@@ -46,54 +43,64 @@ public class BotsingExecutor extends MavenRunner {
 		// create crashLog file
 		File crashLogFile = new File(workingDir + (File.separator + "crash.log"));
 		FileUtils.writeStringToFile(crashLogFile, this.issueBody, Charset.defaultCharset());
-
+		this.botsingParameters.setCrashLogFile(crashLogFile);
+		
 		// run Botsing using Maven
-		boolean result = runMavenCommand(BOTSING_COMMAND, workingDir,
-				this.botsingParameters.getMandatoryParameters(crashLogFile),
-				this.botsingParameters.getOptionalParameters());
-		this.log.debug("Botsing execution completed with result " + result);
+		if (!runMavenCommand(BOTSING_COMMAND, workingDir,this.botsingParameters.getMandatoryParameters(),this.botsingParameters.getOptionalParameters()))
+		{
+			resultManager = processFailResult(crashLogFile);
 
-		if (!result)
-			return BotsingResult.FAIL;
+		}
 		else
-			return generateFiles(workingDir);
+		{
+			File [] testFiles = generateTestFiles(workingDir);
+			resultManager = processSuccessResult(testFiles, crashLogFile);
+		}
+	
+		
+		this.log.debug("Botsing execution completed with result " + resultManager.getBotsingResult());
+		
+		return resultManager;
 
 	}
+	
+	protected abstract BotsingResultManager processFailResult (File crashLogFile);
+	
+	protected abstract BotsingResultManager processSuccessResult (File [] testFiles, File crashLogFile);
 
-	private BotsingResult generateFiles(File workingDir) throws IOException {
-		Collection<File> testFiles = FileUtility.search(workingDir.getAbsolutePath(),
-				".*EvoSuite did not generate any tests.*", new String[] { "java" });
+	private File [] generateTestFiles(File workingDir) throws IOException 
+	{
+		File [] testFiles = null;
+		
+		try
+		{
+			Iterator<File> filesIterator = FileUtility.search(workingDir.getAbsolutePath(),".*EvoSuite did not generate any tests.*", new String[] { "java" }).iterator();
+			testFiles = new File [2];
 
-		if (testFiles != null) {
-			Iterator<File> filesIterator = testFiles.iterator();
-
-			while (filesIterator.hasNext() && (this.testFile == null || this.scaffoldingTestFile == null)) {
+			
+			while (filesIterator.hasNext() && (testFiles [0] == null || testFiles [1] == null)) 
+			{
 				File currentFile = filesIterator.next();
 				String fileName = currentFile.getName();
 
 				if (fileName.contains("scaffolding"))
-					this.scaffoldingTestFile = currentFile;
+					testFiles [1]  = currentFile;
 				else
-					this.testFile = currentFile;
+					testFiles [0]  = currentFile;
 
 			}
 
-			if (this.testFile == null || this.scaffoldingTestFile == null)
-				return BotsingResult.NO_FILES;
-			else
-				return BotsingResult.OK;
+			
+		}
+		catch (NullPointerException e)
+		{
+			log.error("Test files not found");
 		}
 
-		else
-			return BotsingResult.NO_FILES;
+		return testFiles;
+		
 	}
 
-	public File getTestFile() {
-		return testFile;
-	}
 
-	public File getScaffoldingTestFile() {
-		return scaffoldingTestFile;
-	}
 
 }

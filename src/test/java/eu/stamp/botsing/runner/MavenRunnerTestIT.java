@@ -13,8 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import eu.stamp.botsing.controller.event.actions.BotsingExecutor;
-import eu.stamp.botsing.controller.event.actions.BotsingExecutor.BotsingResult;
+import eu.stamp.botsing.controller.event.actions.BotsingResult;
 import eu.stamp.botsing.service.BotsingParameters;
 import eu.stamp.botsing.utility.ConfigurationBeanForIntegrationTests;
 
@@ -53,13 +52,13 @@ public class MavenRunnerTestIT {
 
 		BotsingParameters botsingParameters = new BotsingParameters(groupId, artifactId, version, searchBudget,
 				globalTimeout, population, packageFilter);
-		BotsingExecutor executor = new BotsingExecutor(botsingParameters, crashLog);
+		TestBotsingExecutor executor = new TestBotsingExecutor(botsingParameters, crashLog);
 
-		BotsingResult botsingResult = executor.runBotsing();
+		TestBotsingResultManager botsingResultManager = (TestBotsingResultManager) executor.runBotsing();
 
-		assertArrayEquals(new Object[] { botsingResult }, new Object[] { BotsingResult.OK });
+		assertArrayEquals(new Object[] { botsingResultManager.getBotsingResult() }, new Object[] {BotsingResult.OK });
 
-		assertNotNull(executor.getTestFile());
-		assertNotNull(executor.getScaffoldingTestFile());
+		assertNotNull(botsingResultManager.getTestFile());
+		assertNotNull(botsingResultManager.getScaffoldingTestFile());
 	}
 }
