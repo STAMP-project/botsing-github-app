@@ -9,7 +9,6 @@ import eu.stamp.botsing.controller.event.ResponseBean;
 import eu.stamp.botsing.controller.event.actions.BotsingResult;
 import eu.stamp.botsing.controller.event.actions.BotsingResultManager;
 import eu.stamp.botsing.controller.event.actions.NotificationDataBean;
-import eu.stamp.botsing.controller.event.jira.issues.JiraDataBean;
 import eu.stamp.botsing.utility.ConfigurationBean;
 
 public class JiraErrorResultManager extends JiraServiceClient implements BotsingResultManager {
@@ -27,8 +26,9 @@ public class JiraErrorResultManager extends JiraServiceClient implements Botsing
 	public ResponseBean notifyToServer(NotificationDataBean notificationDataBean) 
 	{
 		
-
-		return sendErrorMessage( ((JiraDataBean) notificationDataBean).getServiceEndpoint(), this.botsingResult.getStatus(), this.botsingResult.getMessage(),Base64.getEncoder().encodeToString(this.crashLogData));
+		return sendErrorMessage(((JiraEndpointOwner) notificationDataBean).getServiceEndpoint(),
+				this.botsingResult.getStatus(), this.botsingResult.getMessage(),
+				Base64.getEncoder().encodeToString(this.crashLogData));
 
 	}
 	
