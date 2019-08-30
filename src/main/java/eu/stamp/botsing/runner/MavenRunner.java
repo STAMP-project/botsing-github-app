@@ -16,7 +16,7 @@ public class MavenRunner {
 
 	private Logger log = LoggerFactory.getLogger(MavenRunner.class);
 
-	public boolean runMavenCommand(String commandString, File workingDir, Map<String, String> mandatoryParameters, 
+	public MavenRunnerResponse runMavenCommand(String commandString, File workingDir, Map<String, String> mandatoryParameters, 
 			Map<String,String> optionalParameters) throws IOException {
 
 		try {
@@ -24,17 +24,12 @@ public class MavenRunner {
 			List<String> command = new ArrayList<String>(Arrays.asList("mvn",commandString));
 			this.addParameters (mandatoryParameters,command);
 			this.addParameters(optionalParameters, command);
-			int exitCode = executeProcess(workingDir, command);
+			return executeProcess(workingDir, command);
 
-			if (exitCode != 0) {
-				return false;
-			}
-
-			return true;
-
+	
 		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
+			log.error("Operation interrupted by an internal error", e);
+			return new MavenRunnerResponse(1, "Internal error in the app");
 		}
 	}
 	
@@ -53,7 +48,7 @@ public class MavenRunner {
 	
 
 
-	private int executeProcess(File workDir, List<String> command) throws InterruptedException, IOException 
+	private MavenRunnerResponse executeProcess(File workDir, List<String> command) throws InterruptedException, IOException 
 	{
 		ProcessBuilder builder = new ProcessBuilder(command);
 
@@ -70,9 +65,9 @@ public class MavenRunner {
 		}
 		s.close();
 
-		int result = process.waitFor();
+		MavenRunnerResponse result = new MavenRunnerResponse(process.waitFor(), text.toString());;
 
-		log.debug("Process exited with result {} and output {} ", result, text);
+		log.debug("Process exited with {} ", result.toString());
 		return result;
 	}
 

@@ -17,12 +17,12 @@ public class GitHubBotsingExecutor extends BotsingExecutor {
 	}
 	
 	@Override
-	protected BotsingResultManager processFailResult(File crashLogFile) {
+	protected BotsingResultManager processFailResult(String mavenLogData) {
 		return new GitHubErrorResultManager(this.clientManager, BotsingResult.FAIL);
 	}
 
 	@Override
-	protected BotsingResultManager processSuccessResult(File[] testFiles, File crashLogFile) {
+	protected BotsingResultManager processSuccessResult(File[] testFiles, String mavenLogData) {
 		BotsingResultManager response = null;
 		
 		if (testFiles == null || testFiles.length<2 || testFiles[0] == null || testFiles [1] == null)

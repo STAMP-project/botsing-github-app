@@ -16,14 +16,14 @@ public class TestBotsingExecutor extends BotsingExecutor {
 	}
 	
 	@Override
-	protected BotsingResultManager processFailResult(File crashLogFile) 
+	protected BotsingResultManager processFailResult(String mavenLogData) 
 	{
 
 		return new TestBotsingResultManager(BotsingResult.FAIL,null);
 	}
 
 	@Override
-	protected BotsingResultManager processSuccessResult(File[] testFiles, File crashLogFile) {
+	protected BotsingResultManager processSuccessResult(File[] testFiles, String mavenLogData) {
 
 
 		return new TestBotsingResultManager (BotsingResult.OK,testFiles);

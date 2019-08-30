@@ -13,6 +13,7 @@ import com.google.common.io.Files;
 
 import eu.stamp.botsing.controller.utils.Constants;
 import eu.stamp.botsing.runner.MavenRunner;
+import eu.stamp.botsing.runner.MavenRunnerResponse;
 import eu.stamp.botsing.service.BotsingParameters;
 import eu.stamp.botsing.utility.FileUtility;
 
@@ -45,16 +46,17 @@ public abstract class BotsingExecutor extends MavenRunner {
 		FileUtils.writeStringToFile(crashLogFile, this.issueBody, Charset.defaultCharset());
 		this.botsingParameters.setCrashLogFile(crashLogFile);
 		
+		MavenRunnerResponse mavenRunnerResponse = runMavenCommand(BOTSING_COMMAND, workingDir,this.botsingParameters.getMandatoryParameters(),this.botsingParameters.getOptionalParameters());
 		// run Botsing using Maven
-		if (!runMavenCommand(BOTSING_COMMAND, workingDir,this.botsingParameters.getMandatoryParameters(),this.botsingParameters.getOptionalParameters()))
+		if (!mavenRunnerResponse.isSuccess())
 		{
-			resultManager = processFailResult(crashLogFile);
+			resultManager = processFailResult(mavenRunnerResponse.getLog());
 
 		}
 		else
 		{
 			File [] testFiles = generateTestFiles(workingDir);
-			resultManager = processSuccessResult(testFiles, crashLogFile);
+			resultManager = processSuccessResult(testFiles, mavenRunnerResponse.getLog());
 		}
 	
 		
@@ -64,9 +66,9 @@ public abstract class BotsingExecutor extends MavenRunner {
 
 	}
 	
-	protected abstract BotsingResultManager processFailResult (File crashLogFile);
+	protected abstract BotsingResultManager processFailResult (String mavenLog);
 	
-	protected abstract BotsingResultManager processSuccessResult (File [] testFiles, File crashLogFile);
+	protected abstract BotsingResultManager processSuccessResult (File [] testFiles, String mavenLog);
 
 	private File [] generateTestFiles(File workingDir) throws IOException 
 	{

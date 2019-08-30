@@ -23,14 +23,14 @@ public class JiraBotsingExecutor extends BotsingExecutor {
 	}
 	
 	@Override
-	protected BotsingResultManager processFailResult(File crashLogFile) {
+	protected BotsingResultManager processFailResult(String mavenLogData) {
 		
 		
 		try
 		{
-			byte [] crashLogData = Files.readAllBytes(Paths.get(crashLogFile.getAbsolutePath()));
-			return new JiraErrorResultManager(this.configuration, crashLogData, BotsingResult.FAIL);
-		}catch (URISyntaxException | IOException ioe)
+
+			return new JiraErrorResultManager(this.configuration, mavenLogData.getBytes(), BotsingResult.FAIL);
+		}catch (URISyntaxException e)
 		{
 			return new UnableToNotifyResultManager(BotsingResult.FAIL);
 		}
@@ -38,7 +38,7 @@ public class JiraBotsingExecutor extends BotsingExecutor {
 	}
 
 	@Override
-	protected BotsingResultManager processSuccessResult(File[] testFiles, File crashLogFile) {
+	protected BotsingResultManager processSuccessResult(File[] testFiles, String mavenLogData) {
 		BotsingResultManager response = null;
 		BotsingResult result = null;
 		try
@@ -46,8 +46,7 @@ public class JiraBotsingExecutor extends BotsingExecutor {
 			if (testFiles == null || testFiles.length<2 || testFiles[0] == null || testFiles [1] == null)
 			{
 				result = BotsingResult.NO_FILES;
-				byte [] crashLogData = Files.readAllBytes(Paths.get(crashLogFile.getAbsolutePath()));
-				response = new JiraErrorResultManager(this.configuration, crashLogData, result);
+				response = new JiraErrorResultManager(this.configuration, mavenLogData.getBytes(), result);
 			}
 			else
 			{
