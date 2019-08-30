@@ -1,6 +1,7 @@
 package eu.stamp.botsing.controller.event.jira;
 
 import java.net.URISyntaxException;
+import java.util.Base64;
 
 import com.google.gson.JsonObject;
 
@@ -13,20 +14,21 @@ import eu.stamp.botsing.utility.ConfigurationBean;
 
 public class JiraErrorResultManager extends JiraServiceClient implements BotsingResultManager {
 
-	private String crashLogFileString;
+	private byte [] crashLogData;
 	private BotsingResult botsingResult; 
 	
-	public JiraErrorResultManager(ConfigurationBean configuration, String crashLogFileString, BotsingResult botsingResult) throws URISyntaxException {
+	public JiraErrorResultManager(ConfigurationBean configuration, byte[] crashLogData, BotsingResult botsingResult) throws URISyntaxException {
 		super (configuration);
-		this.crashLogFileString = crashLogFileString;
+		this.crashLogData = crashLogData;
 		this.botsingResult = botsingResult;
 	}
 	
 	@Override
 	public ResponseBean notifyToServer(NotificationDataBean notificationDataBean) 
 	{
+		
 
-		return sendErrorMessage( ((JiraDataBean) notificationDataBean).getServiceEndpoint(), this.botsingResult.getStatus(), this.botsingResult.getMessage(), this.crashLogFileString);
+		return sendErrorMessage( ((JiraDataBean) notificationDataBean).getServiceEndpoint(), this.botsingResult.getStatus(), this.botsingResult.getMessage(),Base64.getEncoder().encodeToString(this.crashLogData));
 
 	}
 	

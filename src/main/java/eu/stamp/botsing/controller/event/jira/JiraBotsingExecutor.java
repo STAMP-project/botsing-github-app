@@ -3,11 +3,8 @@ package eu.stamp.botsing.controller.event.jira;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
-import org.apache.commons.io.FileUtils;
 
 import eu.stamp.botsing.controller.event.actions.BotsingExecutor;
 import eu.stamp.botsing.controller.event.actions.BotsingResult;
@@ -31,8 +28,8 @@ public class JiraBotsingExecutor extends BotsingExecutor {
 		
 		try
 		{
-			String crashLogFileString = FileUtils.readFileToString(crashLogFile, Charset.defaultCharset());
-			return new JiraErrorResultManager(this.configuration, crashLogFileString, BotsingResult.FAIL);
+			byte [] crashLogData = Files.readAllBytes(Paths.get(crashLogFile.getAbsolutePath()));
+			return new JiraErrorResultManager(this.configuration, crashLogData, BotsingResult.FAIL);
 		}catch (URISyntaxException | IOException ioe)
 		{
 			return new UnableToNotifyResultManager(BotsingResult.FAIL);
@@ -49,8 +46,8 @@ public class JiraBotsingExecutor extends BotsingExecutor {
 			if (testFiles == null || testFiles.length<2 || testFiles[0] == null || testFiles [1] == null)
 			{
 				result = BotsingResult.NO_FILES;
-				String crashLogFileString = FileUtils.readFileToString(crashLogFile, Charset.defaultCharset());
-				response = new JiraErrorResultManager(this.configuration, crashLogFileString, result);
+				byte [] crashLogData = Files.readAllBytes(Paths.get(crashLogFile.getAbsolutePath()));
+				response = new JiraErrorResultManager(this.configuration, crashLogData, result);
 			}
 			else
 			{

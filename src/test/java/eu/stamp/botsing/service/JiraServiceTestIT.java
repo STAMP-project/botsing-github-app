@@ -47,7 +47,7 @@ public class JiraServiceTestIT {
 	@Test
 	public void sendErrorTest() throws IOException, URISyntaxException {
 		
-		JiraErrorResultManager jiraResultManager = new JiraErrorResultManager(configuration, TEST_ERROR_FILE, BotsingResult.FAIL);
+		JiraErrorResultManager jiraResultManager = new JiraErrorResultManager(configuration, TEST_ERROR_FILE.getBytes(), BotsingResult.FAIL);
 		ResponseBean response = jiraResultManager.notifyToServer(new TestJiraDataBean());
 		assertTrue(response.getStatus() == 200);
 	}
