@@ -1,6 +1,7 @@
-# Botsing GitHub App
+# Botsing Server
 
-This is a GitHub App that generate a test to reproduce the stacktrace read from an issue opened in GitHub. This repository contains the code to build the server with the service called by GitHub.
+This web service acts as a bridge between Botsing and Github or Jira. In, starting from an issue opened on Github or Jira, containing the stacktrace of a runtime error, it  generates a test to reproduce it on Botsing and notifies about the results.
+This repository contains the code to build the server with the service called by GitHub and Jira.
 
 ## Getting started
 
@@ -18,7 +19,7 @@ There must be these applications installed on the local machine:
 To install this application you must get a copy of the project from GitHub:
 
 ```
-git clone https://github.com/luandrea/botsing-github-app.git
+git clone https://github.com/STAMP-project/botsing-github-app.git
 ```
 ### Configuration
 
@@ -34,6 +35,9 @@ The paremeters to be set are:
 1. githubOAuth2Token: user token to connect to github (alternative to githubUsername and githubUsername)
 1. githubUsername: user used to clone the repository and create the pull request (alternative to githubOAuth2Token)
 1. githubPassword: password of the user (alternative to githubOAuth2Token)
+1. jiraURL: url of the server Jira
+1. jiraUsername: username of Jira user
+1. jiraPassword: Jira password
 1. proxyHost: proxy host, leave blank if you do not use it
 1. proxyPort: proxy port, leave blank if you do not use it
 
@@ -64,9 +68,10 @@ easiest way is to use some service like ngrok. You have to register to it and th
 
 In this way you expose the local port 3000 through the URL that ngrok will give you.
 
-## Create GitHub App
+## Create Botsing server app App
 
-To create the GitHub App you need to access GitHub with your account and then go to:
+#GitHub
+To create the Botsing server app at GitHub side you need to access GitHub with your account and then go to:
 
 * Profile > Settings > Developer settings > GitHub Apps > New GitHub App
 
@@ -93,7 +98,7 @@ Finally you have to install the app and select the repository.
 
 
 
-## Add Botsing properties file
+# Add Botsing properties file
 
 In the repository where the issue containing the stacktrace will be opened you have to create a `.botsing` file to put the default parameters used to run Botsing.
 
@@ -108,3 +113,6 @@ global_timeout=90
 ```
 
 `search_budget` and `global_timeout` are optional. More details on the parameters can be found in [botsing-maven](https://github.com/STAMP-project/botsing/tree/master/botsing-maven) project.
+
+# Jira
+To do
