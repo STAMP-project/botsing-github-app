@@ -1,7 +1,4 @@
-package eu.stamp.botsing.controller.event.github.issues;
-
-import eu.stamp.botsing.controller.event.ResponseBean;
-import eu.stamp.botsing.controller.event.RestException;
+package eu.stamp.botsing.controller.event;
 
 public class InvalidActionException  extends Exception implements RestException{
 

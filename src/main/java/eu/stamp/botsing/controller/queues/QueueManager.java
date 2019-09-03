@@ -22,9 +22,9 @@ public class QueueManager
 	
 
 	
-	private GitHubQueueSubscriber subscriber;
+	private QueueSubscriber subscriber;
 	
-	public QueueManager (GitHubQueueSubscriber subscriber) throws Exception
+	public QueueManager (QueueSubscriber subscriber) throws Exception
 	{
 		this.subscriber = subscriber;
 		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(CONNECTION_NAME);
@@ -49,9 +49,9 @@ public class QueueManager
 
 	}
 
-	public GitHubQueuePublisher createPublisher (String event, String action)
+	public QueuePublisher createPublisher (String toolName,String event, String action)
 	{
-		return new GitHubQueuePublisher(this.producer, this.txSession, event,action);
+		return new QueuePublisher(this.producer, this.txSession, toolName,event,action);
 	}
 	
 }

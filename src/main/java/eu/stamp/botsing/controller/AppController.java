@@ -12,9 +12,9 @@ import com.google.gson.JsonObject;
 
 import eu.stamp.botsing.controller.event.ActionFactory;
 import eu.stamp.botsing.controller.event.EventFactory;
+import eu.stamp.botsing.controller.event.InvalidActionException;
 import eu.stamp.botsing.controller.event.InvalidEventException;
 import eu.stamp.botsing.controller.event.filter.FilteredActionException;
-import eu.stamp.botsing.controller.event.github.issues.InvalidActionException;
 import eu.stamp.botsing.controller.utils.JsonMethods;
 
 
@@ -24,15 +24,10 @@ public abstract class AppController {
 	
 	private EventFactory eventFactory;
 
-	public String greeting() {
-		return "This is the Botsing GitHub App Test Service. More information can be found here: https://github.com/STAMP-project/botsing-github-app";
-	}
-
-
-	protected ActionManager getAction (HttpServletRequest request,String eventType) throws InvalidEventException, IOException, InvalidActionException, FilteredActionException 
+	protected ActionManager getAction (HttpServletRequest request,String toolName,String eventType) throws InvalidEventException, IOException, InvalidActionException, FilteredActionException 
 	{
 			log.debug("'" + eventType + "' Event received");
-			ActionFactory actionFactory =  this.eventFactory.getActionFactory(eventType);
+			ActionFactory actionFactory =  this.eventFactory.getActionFactory(toolName,eventType);
 			String bodyString = getBody(request);
 			JsonObject jsonObject = JsonMethods.getJSonObjectFromBodyString(bodyString);
 			ActionObject actionObject = new ActionObject(jsonObject, bodyString);

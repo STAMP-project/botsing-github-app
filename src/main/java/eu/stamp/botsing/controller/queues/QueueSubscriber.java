@@ -17,16 +17,16 @@ import eu.stamp.botsing.controller.event.EventFactory;
 import eu.stamp.botsing.controller.utils.JsonMethods;
 
 
-public class GitHubQueueSubscriber implements Runnable, ExceptionListener{
+public class QueueSubscriber implements Runnable, ExceptionListener{
 
 	private MessageConsumer messageConsumer;
-	private Logger log = LoggerFactory.getLogger(GitHubQueueSubscriber.class);
+	private Logger log = LoggerFactory.getLogger(QueueSubscriber.class);
 	private boolean started;
 	
 
 	private EventFactory eventFactory;
 
-	public GitHubQueueSubscriber(EventFactory eventFactory) {
+	public QueueSubscriber(EventFactory eventFactory) {
 		this.started = false;
 		this.eventFactory = eventFactory;
 	}
@@ -65,18 +65,15 @@ public class GitHubQueueSubscriber implements Runnable, ExceptionListener{
 					
 					TextMessage textMessage = (TextMessage) message;
 					
-					processMessage(textMessage.getStringProperty(EventFactory.EVENT), textMessage.getText());
+					processMessage(textMessage.getStringProperty(EventFactory.TOOL),textMessage.getStringProperty(EventFactory.EVENT), textMessage.getText());
 					
 				}
 				else
 				{
 					this.log.warn("Received unexpected message type "+message.getClass());
-				}
-				
+				}				
 			}
 
-
-			
 			
 		} catch (Exception e)
 		{
@@ -86,12 +83,12 @@ public class GitHubQueueSubscriber implements Runnable, ExceptionListener{
 
 	}
 	
-	private void processMessage (String eventName,String message)
+	private void processMessage (String toolName, String eventName,String message)
 	{
 		try
 		{
 			JsonObject jsonObject = JsonMethods.getJSonObjectFromBodyString(message);
-			Action action = this.eventFactory.getActionFactory(eventName).getAction(jsonObject);
+			Action action = this.eventFactory.getActionFactory(toolName,eventName).getAction(jsonObject);
 			action.execute(new ActionObject(jsonObject, message));
 			
 		} catch (Exception e)

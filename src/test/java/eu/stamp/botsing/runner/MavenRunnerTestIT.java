@@ -1,10 +1,8 @@
 package eu.stamp.botsing.runner;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNotNull;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -15,7 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import eu.stamp.botsing.controller.utils.Constants;
+import eu.stamp.botsing.controller.event.actions.BotsingResult;
+import eu.stamp.botsing.service.BotsingParameters;
 import eu.stamp.botsing.utility.ConfigurationBeanForIntegrationTests;
 
 @RunWith(SpringRunner.class)
@@ -49,22 +48,17 @@ public class MavenRunnerTestIT {
 	public TemporaryFolder tmpFolder = new TemporaryFolder();
 
 	@Test
-	public void runBotsingReproductionTest() throws IOException {
-		System.out.println("SONO QUI*************************************");
+	public void runBotsingReproductionTest() throws Exception {
 
-		File workingDir = tmpFolder.newFolder();
+		BotsingParameters botsingParameters = new BotsingParameters(groupId, artifactId, version, searchBudget,
+				globalTimeout, population, packageFilter);
+		TestBotsingExecutor executor = new TestBotsingExecutor(botsingParameters, crashLog);
 
-		// create dummy pom file
-		File pomFile = new File(workingDir + (File.separator + "pom.xml"));
-		FileUtils.writeStringToFile(pomFile, Constants.POM_FOR_BOTSING, Charset.defaultCharset());
+		TestBotsingResultManager botsingResultManager = (TestBotsingResultManager) executor.runBotsing();
 
-		// create crashLog file
-		File crashLogFile = new File(workingDir + (File.pathSeparatorChar + "crash.log"));
-		FileUtils.writeStringToFile(crashLogFile, crashLog, Charset.defaultCharset());
+		assertArrayEquals(new Object[] { botsingResultManager.getBotsingResult() }, new Object[] {BotsingResult.OK });
 
-		boolean  runnedWithoutErrors = MavenRunner.runBotsingReproductionWithMaxTargetFrame(workingDir, crashLogFile.getAbsolutePath(), groupId, artifactId,
-				version, null, population, searchBudget, globalTimeout, packageFilter);
-
-		assert(runnedWithoutErrors);
+		assertNotNull(botsingResultManager.getTestFile());
+		assertNotNull(botsingResultManager.getScaffoldingTestFile());
 	}
 }

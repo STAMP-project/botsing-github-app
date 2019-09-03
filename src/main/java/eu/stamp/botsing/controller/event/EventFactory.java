@@ -3,7 +3,8 @@ package eu.stamp.botsing.controller.event;
 public interface EventFactory {
 
 	public static final String 	ACTION = "action",
-								EVENT = "event";
+								EVENT = "event",
+								TOOL = "tool";
 	
-	public ActionFactory getActionFactory (String eventName) throws InvalidEventException;
+	public ActionFactory getActionFactory (String toolName,String eventName) throws InvalidEventException;
 }

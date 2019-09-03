@@ -14,6 +14,12 @@ public class ConfigurationBean {
 	private String githubPassword;
 	private String githubToken;
 	private String githubAcceptedLabel;
+	private String githubURL;
+
+	private String jiraURL;
+	private String jiraUsername;
+	private String jiraPassword;
+
 	private String proxyHost;
 	private Integer proxyPort;
 
@@ -73,8 +79,36 @@ public class ConfigurationBean {
 		this.githubAcceptedLabel = githubAcceptedLabel;
 	}
 
+	public String getGithubURL() {
+		return githubURL;
+	}
 
-	
+	public void setGithubURL(String githubURL) {
+		this.githubURL = githubURL;
+	}
 
-	
+	public String getJiraURL() {
+		return jiraURL;
+	}
+
+	public void setJiraURL(String jiraURL) {
+		this.jiraURL = jiraURL;
+	}
+
+	public String getJiraUsername() {
+		return jiraUsername;
+	}
+
+	public void setJiraUsername(String jiraUsername) {
+		this.jiraUsername = jiraUsername;
+	}
+
+	public String getJiraPassword() {
+		return jiraPassword;
+	}
+
+	public void setJiraPassword(String jiraPassword) {
+		this.jiraPassword = jiraPassword;
+	}
+
 }

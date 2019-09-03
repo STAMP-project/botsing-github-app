@@ -1,4 +1,4 @@
-package eu.stamp.botsing.controller.github;
+package eu.stamp.botsing.controller.jira;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -21,22 +21,22 @@ import eu.stamp.botsing.controller.event.ResponseBean;
 import eu.stamp.botsing.controller.event.filter.FilteredActionException;
 
 @RestController
-public class GitHubAppController extends QueuedAppController{
+@RequestMapping("/jira")
+public class JiraAppController extends QueuedAppController{
 
-	public static final String TOOL_NAME = "github";
+	public static final String TOOL_NAME = "jira";
 
-	private Logger log = LoggerFactory.getLogger(GitHubAppController.class);
+	private Logger log = LoggerFactory.getLogger(JiraAppController.class);
 
 	@RequestMapping("/test")
 	public String greeting(String message) {
-		return "This is the Botsing GitHub App Test Service. More information can be found here: https://github.com/STAMP-project/botsing-github-app";
+		return "This is the Botsing Jira App Test Service.";
 	}
 
 
-
-	@PostMapping(value = "/botsing-github-app")
-	public ResponseEntity<String> getPullRequestFullBody(HttpServletRequest request,@RequestHeader(value = "X-GitHub-Event", defaultValue = "")  String eventType) {
-
+	@PostMapping(value = "/botsing-jira-app")
+	public ResponseEntity<String> getPullRequestFullBody(HttpServletRequest request,@RequestHeader(value = "X-Jira-Event", defaultValue = "")  String eventType) 
+	{
 		ResponseEntity<String> response = null;
 		
 		try 

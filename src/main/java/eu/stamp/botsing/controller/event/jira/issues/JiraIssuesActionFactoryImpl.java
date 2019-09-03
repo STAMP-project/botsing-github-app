@@ -1,4 +1,4 @@
-package eu.stamp.botsing.controller.event.github.issues;
+package eu.stamp.botsing.controller.event.jira.issues;
 
 import java.util.List;
 
@@ -11,16 +11,16 @@ import eu.stamp.botsing.controller.event.Action;
 import eu.stamp.botsing.controller.event.ActionFactory;
 import eu.stamp.botsing.controller.event.InvalidActionException;
 import eu.stamp.botsing.controller.event.filter.FilteredActionException;
-import eu.stamp.botsing.controller.event.issues.IssuesActionFactoryImpl;
-import eu.stamp.botsing.controller.github.GitHubAppController;
+import eu.stamp.botsing.controller.jira.JiraAppController;
 
 
 
 @Component 
-public class GitHubIssuesActionFactoryImpl extends IssuesActionFactoryImpl implements ActionFactory{
+public class JiraIssuesActionFactoryImpl  implements ActionFactory{
 
+	private JiraIssuesAction action;
 	
-	public GitHubIssuesActionFactoryImpl() {
+	public JiraIssuesActionFactoryImpl() {
 		super ();
 	}
 
@@ -29,27 +29,27 @@ public class GitHubIssuesActionFactoryImpl extends IssuesActionFactoryImpl imple
 	public Action getAction(JsonObject jsonObject)
 			throws InvalidActionException, FilteredActionException { 
 	 
-		return super.getAction(jsonObject);
+		return this.action;
 	}
 
 	
 	@Autowired
-	public void setGitHubIssuesActions (List<GitHubIssuesAction> actions)
+	public void setJiraIssuesActions (List<JiraIssuesAction> actions)
 	{
-		for (GitHubIssuesAction action : actions)
-		{
-			this.addAction(action);
-		}
+		// Unique default action
+		this.action = actions.get(0);
+
 	}
 
 	@Override
-	public String getEventName() {
-		return GitHubIssuesAction.EVENT_NAME;
+	public String getEventName() 
+	{
+		return JiraIssuesAction.EVENT_NAME;
 	}
 
 	@Override
 	public String getQualifiedEventName() 
 	{
-		return GitHubAppController.TOOL_NAME+"."+GitHubIssuesAction.EVENT_NAME;
+		return JiraAppController.TOOL_NAME+"."+JiraIssuesAction.EVENT_NAME;
 	}
 }

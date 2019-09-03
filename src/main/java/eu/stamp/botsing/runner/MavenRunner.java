@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import org.slf4j.Logger;
@@ -12,45 +14,42 @@ import org.slf4j.LoggerFactory;
 
 public class MavenRunner {
 
-	static Logger log = LoggerFactory.getLogger(MavenRunner.class);
+	private Logger log = LoggerFactory.getLogger(MavenRunner.class);
 
-	public static boolean runBotsingReproductionWithMaxTargetFrame(File workingDir, String crashLogFile, String groupId,
-			String artifactId, String version, String maxTargetFrame, String population, String searchBudget,
-			String globalTimeout, String packageFilter) throws IOException {
+	public MavenRunnerResponse runMavenCommand(String commandString, File workingDir, Map<String, String> mandatoryParameters, 
+			Map<String,String> optionalParameters) throws IOException {
 
 		try {
 			// mandatory parameters
-			List<String> command = new ArrayList<String>(Arrays.asList("mvn",
-					"eu.stamp-project:botsing-maven:1.0.6-SNAPSHOT:botsing", "-Dcrash_log=" + crashLogFile,
-					"-Dgroup_id=" + groupId, "-Dartifact_id=" + artifactId, "-Dversion=" + version));
+			List<String> command = new ArrayList<String>(Arrays.asList("mvn",commandString));
+			this.addParameters (mandatoryParameters,command);
+			this.addParameters(optionalParameters, command);
+			return executeProcess(workingDir, command);
 
-			// optional parameters
-			addOptionaParameter("search_budget", searchBudget, command);
-			addOptionaParameter("global_timeout", globalTimeout, command);
-			addOptionaParameter("population", population, command);
-			addOptionaParameter("package_filter", population, command);
-
-			int exitCode = executeProcess(workingDir, command);
-
-			if (exitCode != 0) {
-				return false;
-			}
-
-			return true;
-
+	
 		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
+			log.error("Operation interrupted by an internal error", e);
+			return new MavenRunnerResponse(1, "Internal error in the app");
 		}
 	}
+	
 
-	private static void addOptionaParameter(String name, String value, List<String> list) {
-		if (value != null) {
-			list.add("-D"+name+"="+value);
+	private void addParameters (Map<String, String> parameters, List<String> commands)
+	{
+		Iterator<String> namesIterator = parameters.keySet().iterator();
+		
+		while (namesIterator.hasNext())
+		{
+			String name = namesIterator.next();
+			String value = parameters.get(name);
+			commands.add("-D"+name+"="+value);
 		}
 	}
+	
 
-	private static int executeProcess(File workDir, List<String> command) throws InterruptedException, IOException {
+
+	private MavenRunnerResponse executeProcess(File workDir, List<String> command) throws InterruptedException, IOException 
+	{
 		ProcessBuilder builder = new ProcessBuilder(command);
 
 		builder.directory(workDir.getAbsoluteFile());
@@ -66,9 +65,9 @@ public class MavenRunner {
 		}
 		s.close();
 
-		int result = process.waitFor();
+		MavenRunnerResponse result = new MavenRunnerResponse(process.waitFor(), text.toString());;
 
-		log.debug("Process exited with result {} and output {} ", result, text);
+		log.debug("Process exited with {} ", result.toString());
 		return result;
 	}
 
