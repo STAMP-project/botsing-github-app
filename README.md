@@ -54,7 +54,7 @@ mvn clean package
 To execute the application you must run this:
 
 ```
-java -jar target/botsing-github-app-2.0.0-SNAPSHOT.jar
+java -jar target/botsing-server-1.0.0.jar
 ```
 
 #### Run it under corporate proxy
@@ -71,6 +71,7 @@ In this way you expose the local port 3000 through the URL that ngrok will give 
 ## Create Botsing server app App
 
 #GitHub
+
 To create the Botsing server app at GitHub side you need to access GitHub with your account and then go to:
 
 * Profile > Settings > Developer settings > GitHub Apps > New GitHub App
@@ -96,8 +97,6 @@ Then you have to choice an authentication method to be set on botsing-github-app
 
 Finally you have to install the app and select the repository.
 
-
-
 # Add Botsing properties file
 
 In the repository where the issue containing the stacktrace will be opened you have to create a `.botsing` file to put the default parameters used to run Botsing.
@@ -115,4 +114,5 @@ global_timeout=90
 `search_budget` and `global_timeout` are optional. More details on the parameters can be found in [botsing-maven](https://github.com/STAMP-project/botsing/tree/master/botsing-maven) project.
 
 # Jira
-To do
+
+To use Botsing server with Jira you need to follow the guide in the (botsing-jira-plugin)[https://github.com/STAMP-project/botsing-jira-plugin].
