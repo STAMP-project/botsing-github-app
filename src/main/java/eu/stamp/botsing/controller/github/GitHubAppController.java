@@ -29,7 +29,7 @@ public class GitHubAppController extends QueuedAppController{
 
 	@RequestMapping("/test")
 	public String greeting(String message) {
-		return "This is the Botsing GitHub App Test Service. More information can be found here: https://github.com/STAMP-project/botsing-github-app";
+		return "This is the Botsing GitHub App Test Service. More information can be found here: https://github.com/STAMP-project/botsing-server";
 	}
 
 

@@ -19,13 +19,13 @@ There must be these applications installed on the local machine:
 To install this application you must get a copy of the project from GitHub:
 
 ```
-git clone https://github.com/STAMP-project/botsing-github-app.git
+git clone https://github.com/STAMP-project/server-app.git
 ```
 ### Configuration
 
 Check the configuration in this file:
 ```
-botsing-github-app/src/main/resources/application.properties
+botsing-server/src/main/resources/application.properties
 ```
 
 The paremeters to be set are:
@@ -82,7 +82,7 @@ Here you have to set:
 * a homepage url the URL containing basic information on the App (can be also a test URL)
 * the webhook URL, that is the URL of the service exposed by the server that you installed in the steps before.
 
-In the section ''permission & events'' you need to set the permission to enable botsing-github-app to access perform its activities, in particular:
+In the section ''permission & events'' you need to set the permission to enable botsing-server to access perform its activities, in particular:
 
 * read and write the repository
 * read and write the issues 
@@ -90,7 +90,7 @@ In the section ''permission & events'' you need to set the permission to enable 
 
 In the subsection ''Subscribe to events'' you need to check the event ''issues''.
 
-Then you have to choice an authentication method to be set on botsing-github-app to access GitHub. The methods currently supported are:
+Then you have to choice an authentication method to be set on botsing-server to access GitHub. The methods currently supported are:
 
 * username/password (you need to set your username/password credentials on botsing configuration file as described above)
 * OAuth2 token (you need to create an OAuth2 token at GitHub side and copy it on the configuration file as described above)
