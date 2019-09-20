@@ -43,18 +43,20 @@ public class GitHubDataManager implements NotificationDataBean{
 	private BotsingParameters botsingParameters;
 	
 	
-	public GitHubDataManager(GitHubClientManager clientManager, JsonObject jsonObject) throws IOException {
+	public GitHubDataManager(GitHubClientManager clientManager, JsonObject jsonObject)
+	{
 		this.client = clientManager.getGitHubClient();
 		this.jsonObject = jsonObject;
-		this.issueParameters = generateIssueParameters(jsonObject);
-		this.botsingParameters = generateBotsingParameters(issueParameters);
+		this.issueParameters = null; 
+		this.botsingParameters = null; 
 		this.file = BOTSING_FILE;
 	}
 	
-	public GitHubDataManager(GitHubClientManager clientManager, IssueParameters issueParameters) throws IOException {
+	public GitHubDataManager(GitHubClientManager clientManager, IssueParameters issueParameters)
+	{
 		this.client = clientManager.getGitHubClient();
 		this.issueParameters = issueParameters;
-		this.botsingParameters = generateBotsingParameters(issueParameters);
+		this.botsingParameters = null;
 		this.file = BOTSING_FILE;
 	}
 	
@@ -69,8 +71,10 @@ public class GitHubDataManager implements NotificationDataBean{
 	}
 	
 	@Override
-	public IssueParameters getIssueParameters ()
+	public IssueParameters getIssueParameters () throws IOException
 	{
+		if (this.issueParameters == null) this.issueParameters = generateIssueParameters(this.jsonObject);
+		
 		return this.issueParameters;
 	}
 	
@@ -104,7 +108,6 @@ public class GitHubDataManager implements NotificationDataBean{
 
 		RepositoryService repoService = new RepositoryService(client);
 		Repository repository = repoService.getRepository(parameters.getRepositoryOwner(), parameters.getRepositoryName());
-
 		ContentsService contentsService = new ContentsService(client);
 
 		try 
@@ -138,6 +141,8 @@ public class GitHubDataManager implements NotificationDataBean{
 	public void setFile (String file)
 	{
 		this.file = file;
+		this.issueParameters = null;
+		this.botsingParameters = null;
 	}
 
 	@Override
@@ -149,8 +154,10 @@ public class GitHubDataManager implements NotificationDataBean{
 
 
 	@Override
-	public BotsingParameters getBotsingParameters() {
+	public BotsingParameters getBotsingParameters()  throws IOException{
 
+		if (this.botsingParameters == null) this.botsingParameters = generateBotsingParameters(getIssueParameters());
+		
 		return this.botsingParameters;
 	}
 

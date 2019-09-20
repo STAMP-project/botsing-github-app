@@ -1,5 +1,6 @@
 package eu.stamp.botsing.controller.event.jira;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Base64;
 
@@ -36,7 +37,7 @@ public class JiraSuccessResultManager  extends JiraServiceClient implements Bots
 	
 	
 	@Override
-	public ResponseBean notifyToServer(NotificationDataBean notificationDataBean) {
+	public ResponseBean notifyToServer(NotificationDataBean notificationDataBean) throws IOException{
 		
 		return sendData( ((JiraEndpointOwner) notificationDataBean).getServiceEndpoint(), notificationDataBean.getIssueParameters().getIssueNumber(), this.testFileBytes,this.scaffoldingTestFileBytes);
 	}
