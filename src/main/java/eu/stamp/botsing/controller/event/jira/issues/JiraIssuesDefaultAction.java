@@ -9,7 +9,6 @@ import com.google.gson.JsonObject;
 
 import eu.stamp.botsing.controller.ActionObject;
 import eu.stamp.botsing.controller.event.ResponseBean;
-import eu.stamp.botsing.controller.event.actions.BotsingExecutor;
 import eu.stamp.botsing.controller.event.actions.BotsingResultManager;
 import eu.stamp.botsing.controller.event.filter.FilteredActionException;
 import eu.stamp.botsing.controller.event.jira.JiraBotsingExecutor;
@@ -82,7 +81,7 @@ public class JiraIssuesDefaultAction  implements JiraIssuesAction{
 
 		JsonObject jsonObject = actionObject.getJsonObject();
 		JiraDataBean botsingJiraDataBean = new JiraDataBean(jsonObject);
-		BotsingExecutor botsingExecutor = new JiraBotsingExecutor (botsingJiraDataBean.getBotsingParameters(), botsingJiraDataBean.getIssueParameters().getIssueBody(), this.configuration);
+		JiraBotsingExecutor botsingExecutor = new JiraBotsingExecutor (botsingJiraDataBean.getBotsingParameters(), botsingJiraDataBean.getIssueParameters().getIssueBody(), this.configuration);
 		BotsingResultManager botsingResultManager = botsingExecutor.runBotsing();
 		this.log.debug("Botsing executed with result "+botsingResultManager.getBotsingResult());
 		return botsingResultManager.notifyToServer(botsingJiraDataBean);

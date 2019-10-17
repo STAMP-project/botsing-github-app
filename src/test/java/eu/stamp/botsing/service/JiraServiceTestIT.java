@@ -28,7 +28,6 @@ public class JiraServiceTestIT {
 	Logger log = LoggerFactory.getLogger(JiraServiceTestIT.class);
 
      private final String TEST_FILE = "this is a test file",
-			TEST_SCAFFOLDING_FILE = "this is a scaffolding file",
 			TEST_ERROR_FILE ="this is a stack trace";
 
 
@@ -39,7 +38,7 @@ public class JiraServiceTestIT {
 	@Test
 	public void sendDataTest() throws IOException, URISyntaxException {
 		
-		JiraSuccessResultManager jiraResultManager = new JiraSuccessResultManager(configuration, TEST_FILE.getBytes(),TEST_SCAFFOLDING_FILE.getBytes());
+		JiraSuccessResultManager jiraResultManager = new JiraSuccessResultManager(configuration, TEST_FILE.getBytes());
 		ResponseBean response = jiraResultManager.notifyToServer(new TestJiraDataBean());
 		assertTrue(response.getStatus() == 200);
 	}

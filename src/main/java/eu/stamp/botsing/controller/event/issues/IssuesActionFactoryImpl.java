@@ -16,7 +16,8 @@ public abstract class IssuesActionFactoryImpl {
 	private Map<String, Action> actionMap;
 
 
-	public IssuesActionFactoryImpl() {
+	public IssuesActionFactoryImpl() 
+	{
 		this.actionMap = new HashMap<String, Action>();
 	}
 

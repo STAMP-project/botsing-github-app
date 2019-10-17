@@ -36,7 +36,7 @@ public abstract class AppController {
 	}
 	
 	
-	public void setEventFactory (EventFactory eventFactory) throws Exception
+	protected void setEventFactory (EventFactory eventFactory) throws Exception
 	{
 		this.eventFactory = eventFactory;
 	}

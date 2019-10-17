@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,28 +12,29 @@ import org.springframework.stereotype.Component;
 @Component 
 public class EventFactoryImpl  implements EventFactory {
 
-	@Autowired
-	private List<ActionFactory> actionFactories;
+
 	
 	private Map<String, ActionFactory> actionFactoryMap;
 
 	
-	public EventFactoryImpl() 
+	@Autowired
+	public EventFactoryImpl(List<ActionFactory> actionFactories) 
 	{
 		this.actionFactoryMap = new HashMap<String, ActionFactory>();
-	}
-
-	@PostConstruct
-	public void init ()
-	{
-		
-		for (ActionFactory actionFactory: this.actionFactories)
+	
+		if (actionFactories != null)
 		{
-			this.actionFactoryMap.put(actionFactory.getQualifiedEventName(), actionFactory);
+			for (ActionFactory actionFactory: actionFactories)
+			{
+				this.actionFactoryMap.put(actionFactory.getQualifiedEventName(), actionFactory);
+			}
 		}
 	}
 
+
+
 	
+
 
 	public ActionFactory getActionFactory(String toolName,String eventName) throws InvalidEventException 
 	{

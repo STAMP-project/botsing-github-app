@@ -1,33 +1,32 @@
 package eu.stamp.botsing.runner;
 
-import java.io.File;
-
 import eu.stamp.botsing.controller.event.ResponseBean;
 import eu.stamp.botsing.controller.event.actions.BotsingResult;
 import eu.stamp.botsing.controller.event.actions.BotsingResultManager;
+import eu.stamp.botsing.controller.event.actions.BotsingTestFiles;
 import eu.stamp.botsing.controller.event.actions.NotificationDataBean;
 
 public class TestBotsingResultManager implements BotsingResultManager {
 
-	private File 	testFile = null,
-					scaffoldingTestFile = null;
+	private String 	testFileString = null;
 	
 	private BotsingResult result;
 	
-	public TestBotsingResultManager(BotsingResult result, File [] testFiles) {
+	public TestBotsingResultManager(BotsingResult result, BotsingTestFiles testFiles) 
+	{
 		this.result = result;
 		
-
-			if (testFiles != null)
-			{
-				
-				if(testFiles.length>0) this.testFile = testFiles[0];
+		try
+		{
+			this.testFileString = testFiles.getDataFileString();
+		} catch (Exception e)
+		{
 			
-				if(testFiles.length>1) this.testFile = testFiles[1];
-			}
+		}
 		
 
-		}
+
+	}
 	
 	@Override
 	public ResponseBean notifyToServer(NotificationDataBean notificationDataBean) {
@@ -42,13 +41,10 @@ public class TestBotsingResultManager implements BotsingResultManager {
 		return this.result;
 	}
 
-	public File getTestFile() {
-		return testFile;
+	public String getTestFileString() {
+		return testFileString;
 	}
 
-	public File getScaffoldingTestFile() {
-		return scaffoldingTestFile;
-	}
 	
 	
 

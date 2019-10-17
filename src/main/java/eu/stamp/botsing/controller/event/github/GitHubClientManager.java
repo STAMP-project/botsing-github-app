@@ -15,7 +15,7 @@ import eu.stamp.botsing.utility.ConfigurationBean;
 @Service
 public class GitHubClientManager {
 
-	Logger log = LoggerFactory.getLogger(GitHubClientManager.class);
+	private Logger log = LoggerFactory.getLogger(GitHubClientManager.class);
 	private GitHubClient client;
 	
 	public GitHubClientManager(ConfigurationBean configuration) {

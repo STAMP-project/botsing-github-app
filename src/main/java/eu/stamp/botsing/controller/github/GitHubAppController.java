@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.stamp.botsing.controller.ActionManager;
 import eu.stamp.botsing.controller.QueuedAppController;
-import eu.stamp.botsing.controller.event.EventFactory;
 import eu.stamp.botsing.controller.event.InvalidActionException;
 import eu.stamp.botsing.controller.event.InvalidEventException;
 import eu.stamp.botsing.controller.event.ResponseBean;
 import eu.stamp.botsing.controller.event.filter.FilteredActionException;
+import eu.stamp.botsing.controller.queues.QueueEventFactory;
 
 @RestController
 public class GitHubAppController extends QueuedAppController{
@@ -82,7 +82,7 @@ public class GitHubAppController extends QueuedAppController{
 	}
 	
 	@Autowired 
-	public void setEventFactory (EventFactory eventFactory)  throws Exception
+	public void setEventFactory (QueueEventFactory eventFactory)  throws Exception
 	{
 		super.setEventFactory(eventFactory);
 	}

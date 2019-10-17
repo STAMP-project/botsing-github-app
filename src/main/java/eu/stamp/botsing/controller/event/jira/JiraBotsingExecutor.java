@@ -1,19 +1,16 @@
 package eu.stamp.botsing.controller.event.jira;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import eu.stamp.botsing.controller.event.actions.BotsingExecutor;
 import eu.stamp.botsing.controller.event.actions.BotsingResult;
 import eu.stamp.botsing.controller.event.actions.BotsingResultManager;
+import eu.stamp.botsing.controller.event.actions.BotsingTestFiles;
 import eu.stamp.botsing.controller.event.actions.UnableToNotifyResultManager;
 import eu.stamp.botsing.service.BotsingParameters;
 import eu.stamp.botsing.utility.ConfigurationBean;
 
-public class JiraBotsingExecutor extends BotsingExecutor {
+public class JiraBotsingExecutor extends BotsingExecutor <BotsingTestFiles> {
 
 	private ConfigurationBean configuration;
 	
@@ -38,12 +35,14 @@ public class JiraBotsingExecutor extends BotsingExecutor {
 	}
 
 	@Override
-	protected BotsingResultManager processSuccessResult(File[] testFiles, String mavenLogData) {
+	protected BotsingResultManager processSuccessResult(BotsingTestFiles testFiles, String mavenLogData) 
+	{
 		BotsingResultManager response = null;
 		BotsingResult result = null;
+		
 		try
 		{
-			if (testFiles == null || testFiles.length<2 || testFiles[0] == null || testFiles [1] == null)
+			if (!testFiles.isCompleted())
 			{
 				result = BotsingResult.NO_FILES;
 				response = new JiraErrorResultManager(this.configuration, mavenLogData.getBytes(), result);
@@ -51,10 +50,10 @@ public class JiraBotsingExecutor extends BotsingExecutor {
 			else
 			{
 				result = BotsingResult.OK;
-				response = new JiraSuccessResultManager(this.configuration, Files.readAllBytes(Paths.get(testFiles[0].getAbsolutePath())), Files.readAllBytes(Paths.get(testFiles[1].getAbsolutePath())));
+				response = new JiraSuccessResultManager(this.configuration, testFiles.getDataFileString().getBytes());
 
 			}
-		} catch (URISyntaxException | IOException e)
+		} catch (Exception e)
 		{
 			response = new UnableToNotifyResultManager(result);
 		} 
@@ -63,6 +62,12 @@ public class JiraBotsingExecutor extends BotsingExecutor {
 		
 		return response;
 
+	}
+
+	@Override
+	protected BotsingTestFiles generateTestFilesStructure() 
+	{
+		return new BotsingTestFiles();
 	}
 
 }

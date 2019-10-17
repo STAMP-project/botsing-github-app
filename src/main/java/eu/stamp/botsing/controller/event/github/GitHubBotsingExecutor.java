@@ -1,13 +1,12 @@
 package eu.stamp.botsing.controller.event.github;
 
-import java.io.File;
-
 import eu.stamp.botsing.controller.event.actions.BotsingExecutor;
 import eu.stamp.botsing.controller.event.actions.BotsingResult;
 import eu.stamp.botsing.controller.event.actions.BotsingResultManager;
+import eu.stamp.botsing.controller.event.actions.BotsingTestFiles;
 import eu.stamp.botsing.service.BotsingParameters;
 
-public class GitHubBotsingExecutor extends BotsingExecutor {
+public class GitHubBotsingExecutor extends BotsingExecutor <BotsingTestFiles>{
 
 	private GitHubClientManager clientManager;
 	
@@ -17,15 +16,17 @@ public class GitHubBotsingExecutor extends BotsingExecutor {
 	}
 	
 	@Override
-	protected BotsingResultManager processFailResult(String mavenLogData) {
+	protected BotsingResultManager processFailResult(String mavenLogData) 
+	{
 		return new GitHubErrorResultManager(this.clientManager, BotsingResult.FAIL);
 	}
 
 	@Override
-	protected BotsingResultManager processSuccessResult(File[] testFiles, String mavenLogData) {
+	protected BotsingResultManager processSuccessResult(BotsingTestFiles testFiles, String mavenLogData) 
+	{
 		BotsingResultManager response = null;
 		
-		if (testFiles == null || testFiles.length<2 || testFiles[0] == null || testFiles [1] == null)
+		if (!testFiles.isCompleted())
 		{
 
 			response = new GitHubErrorResultManager(this.clientManager, BotsingResult.NO_FILES);
@@ -39,5 +40,13 @@ public class GitHubBotsingExecutor extends BotsingExecutor {
 		
 		return response;
 	}
+
+	@Override
+	protected BotsingTestFiles generateTestFilesStructure() 
+	{
+		return new BotsingTestFiles();
+	}
+
+
 
 }

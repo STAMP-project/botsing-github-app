@@ -16,7 +16,7 @@ import eu.stamp.botsing.controller.event.filter.FilteredActionException;
 import eu.stamp.botsing.utility.ConfigurationBean;
 
 @Configurable
-@Component ("github.configuration")
+@Component ("github.configuration.label")
 public class GitHubConfigurationBasedLabelActionFilter implements ActionFilter {
 
 
@@ -26,7 +26,7 @@ public class GitHubConfigurationBasedLabelActionFilter implements ActionFilter {
 							LABELS = "labels",
 							NAME = "name";
 	
-	private String acceptedLabel;
+	private final String acceptedLabel;
 	
 	public GitHubConfigurationBasedLabelActionFilter(ConfigurationBean configuration) {
 		this.acceptedLabel = configuration.getGithubAcceptedLabel();

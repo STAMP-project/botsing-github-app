@@ -13,9 +13,10 @@ import org.slf4j.LoggerFactory;
 
 import eu.stamp.botsing.service.IssueParameters;
 
-public abstract class GitHubNotificationClient {
+public abstract class GitHubNotificationClient 
+{
 
-	Logger log = LoggerFactory.getLogger(GitHubNotificationClient.class);
+	private Logger log = LoggerFactory.getLogger(GitHubNotificationClient.class);
 	private GitHubClient client;
 	
 	public GitHubNotificationClient (GitHubClientManager clientManager)
@@ -23,10 +24,12 @@ public abstract class GitHubNotificationClient {
 		this.client = clientManager.getGitHubClient();
 	}
 	
-	protected String sendDataString(IssueParameters parameters, String dataString) throws IOException {
+	protected String sendDataString(IssueParameters parameters, String dataString) throws IOException 
+	{
+		log.debug("Creating comment");
 		IssueService issueService = new IssueService(client);
 		Comment issueComment = issueService.createComment(parameters.getRepositoryOwner(), parameters.getRepositoryName(), parameters.getIssueNumber(), dataString);
-
+		log.debug("Issue comment created");
 		return issueComment.getBody();
 	}
 	
@@ -34,10 +37,7 @@ public abstract class GitHubNotificationClient {
 	{
 		log.debug("Creating new issue comment with file");
 		String comment = new String(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
-		IssueService issueService = new IssueService(client);
-		Comment issueComment = issueService.createComment(parameters.getRepositoryOwner(), parameters.getRepositoryName(), parameters.getIssueNumber(), comment);
-		log.debug("Issue comment created");
-		return issueComment.getBody();
+		return sendDataString(parameters, comment);
 	}
 	
 }

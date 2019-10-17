@@ -92,6 +92,7 @@ public class GitHubDataManager implements NotificationDataBean{
 		return result;
 	}
 
+	
 	private BotsingParameters generateBotsingParameters (IssueParameters issueParameters) throws IOException
 	{
 		Properties botsingProperties = getInputProperties(issueParameters);

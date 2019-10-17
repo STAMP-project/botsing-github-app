@@ -17,7 +17,7 @@ import eu.stamp.botsing.runner.MavenRunnerResponse;
 import eu.stamp.botsing.service.BotsingParameters;
 import eu.stamp.botsing.utility.FileUtility;
 
-public abstract class BotsingExecutor extends MavenRunner {
+public abstract class BotsingExecutor <T extends TestFiles>  extends MavenRunner {
 
 	private Logger log = LoggerFactory.getLogger(BotsingExecutor.class);
 
@@ -55,7 +55,7 @@ public abstract class BotsingExecutor extends MavenRunner {
 		}
 		else
 		{
-			File [] testFiles = generateTestFiles(workingDir);
+			T testFiles = generateTestFiles(workingDir);
 			resultManager = processSuccessResult(testFiles, mavenRunnerResponse.getLog());
 		}
 	
@@ -66,33 +66,31 @@ public abstract class BotsingExecutor extends MavenRunner {
 
 	}
 	
+	protected abstract T generateTestFilesStructure ();
+	
 	protected abstract BotsingResultManager processFailResult (String mavenLog);
 	
-	protected abstract BotsingResultManager processSuccessResult (File [] testFiles, String mavenLog);
+	protected abstract BotsingResultManager processSuccessResult (T testFiles, String mavenLog);
 
-	private File [] generateTestFiles(File workingDir) throws IOException 
+	private T generateTestFiles(File workingDir) throws IOException 
 	{
-		File [] testFiles = null;
+		T testFiles = generateTestFilesStructure ();
 		
 		try
 		{
 			Iterator<File> filesIterator = FileUtility.search(workingDir.getAbsolutePath(),".*EvoSuite did not generate any tests.*", new String[] { "java" }).iterator();
-			testFiles = new File [2];
-
 			
-			while (filesIterator.hasNext() && (testFiles [0] == null || testFiles [1] == null)) 
+			while (filesIterator.hasNext() && !testFiles.isCompleted()) 
 			{
 				File currentFile = filesIterator.next();
 				String fileName = currentFile.getName();
 
 				if (fileName.contains("scaffolding"))
-					testFiles [1]  = currentFile;
+					testFiles.setScaffoldingFile(fileName,currentFile);
 				else
-					testFiles [0]  = currentFile;
-
+					testFiles.setDataFile(fileName,currentFile);
 			}
 
-			
 		}
 		catch (NullPointerException e)
 		{

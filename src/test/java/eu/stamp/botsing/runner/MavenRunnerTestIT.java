@@ -58,7 +58,6 @@ public class MavenRunnerTestIT {
 
 		assertArrayEquals(new Object[] { botsingResultManager.getBotsingResult() }, new Object[] {BotsingResult.OK });
 
-		assertNotNull(botsingResultManager.getTestFile());
-		assertNotNull(botsingResultManager.getScaffoldingTestFile());
+		assertNotNull(botsingResultManager.getTestFileString());
 	}
 }
