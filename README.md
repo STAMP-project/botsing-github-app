@@ -79,8 +79,8 @@ To create the Botsing server app at GitHub side you need to access GitHub with y
 Here you have to set:
 
 * a name and a description for the app 
-* a homepage url the URL containing basic information on the App (can be also a test URL)
-* the webhook URL, that is the URL of the service exposed by the server that you installed in the steps before.
+* a homepage url the URL containing basic information on the App (can be also a test URL, e.g. http://BOTSING_SERVER_IP:BOTSING_SERVER_PORT/test) 
+* the webhook URL, that is the URL of the service exposed by the server that you installed in the steps before (e.g http://BOTSING_SERVER_IP:BOTSING_SERVER_PORT/botsing-github-app).
 
 In the section ''permission & events'' you need to set the permission to enable botsing-server to access perform its activities, in particular:
 
@@ -90,7 +90,9 @@ In the section ''permission & events'' you need to set the permission to enable 
 
 In the subsection ''Subscribe to events'' you need to check the event ''issues''.
 
-Then you have to choice an authentication method to be set on botsing-server to access GitHub. The methods currently supported are:
+Then you have to choice an authentication method to be set on botsing-server to access GitHub. The botsing-server have to access the repository and the notifications. 
+
+The methods currently supported are:
 
 * username/password (you need to set your username/password credentials on botsing configuration file as described above)
 * OAuth2 token (you need to create an OAuth2 token at GitHub side and copy it on the configuration file as described above)
