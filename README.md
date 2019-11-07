@@ -90,7 +90,7 @@ In the section ''permission & events'' you need to set the permission to enable 
 
 In the subsection ''Subscribe to events'' you need to check the event ''issues''.
 
-Then you have to choice an authentication method to be set on botsing-server to access GitHub. The botsing-server have to access the repository and the notifications. 
+Then you have to choose an authentication method to be set on botsing-server to access GitHub. The botsing-server have to access the repository and the notifications. 
 
 The methods currently supported are:
 
