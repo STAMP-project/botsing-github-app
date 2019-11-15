@@ -27,9 +27,11 @@ public class GitHubConfigurationBasedLabelActionFilter implements ActionFilter {
 							NAME = "name";
 	
 	private final String acceptedLabel;
+	private String description;
 	
 	public GitHubConfigurationBasedLabelActionFilter(ConfigurationBean configuration) {
 		this.acceptedLabel = configuration.getGithubAcceptedLabel();
+		this.description = "add label "+acceptedLabel;
 	}
 	
 	@Override
@@ -66,6 +68,12 @@ public class GitHubConfigurationBasedLabelActionFilter implements ActionFilter {
 		}
 		
 		return found;
+	}
+
+	@Override
+	public String getDescription() {
+
+		return this.description;
 	}
 
 }

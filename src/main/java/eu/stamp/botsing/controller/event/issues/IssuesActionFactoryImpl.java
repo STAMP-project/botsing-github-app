@@ -1,7 +1,9 @@
 package eu.stamp.botsing.controller.event.issues;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.gson.JsonObject;
 
@@ -14,11 +16,13 @@ import eu.stamp.botsing.controller.event.filter.FilteredActionException;
 public abstract class IssuesActionFactoryImpl {
 
 	private Map<String, Action> actionMap;
-
+	private Set<String> validActionsDescriptions;
 
 	public IssuesActionFactoryImpl() 
 	{
 		this.actionMap = new HashMap<String, Action>();
+		this.validActionsDescriptions = new HashSet<String>();
+
 	}
 
 	public Action getAction(JsonObject jsonObject)
@@ -27,7 +31,7 @@ public abstract class IssuesActionFactoryImpl {
 		String actionName = jsonObject.get(EventFactory.ACTION).getAsString();
 		Action action = this.actionMap.get(actionName);
 		
-		if (action == null) throw new InvalidActionException(this.getEventName(), actionName);
+		if (action == null) throw new InvalidActionException(this.getEventName(), actionName,this.validActionsDescriptions);
 		else
 		{
 			action.applyFilter(jsonObject);
@@ -39,6 +43,7 @@ public abstract class IssuesActionFactoryImpl {
 	{
 		
 		this.actionMap.put(action.getActionName(), action);
+		this.validActionsDescriptions.add(action.getDescription());
 	
 	}
 	

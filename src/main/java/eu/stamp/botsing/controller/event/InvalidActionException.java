@@ -1,5 +1,7 @@
 package eu.stamp.botsing.controller.event;
 
+import java.util.Set;
+
 public class InvalidActionException  extends Exception implements RestException{
 
 	/**
@@ -9,17 +11,22 @@ public class InvalidActionException  extends Exception implements RestException{
 	private String actionName,
 					eventName;
 	
-	public InvalidActionException(String event, String action) {
+	private Set<String> validActions;
+	
+	
+	public InvalidActionException(String event, String action, Set<String> validActions) {
 		super ("Invalid action "+action+ " for event "+event);
 		this.actionName = action;
 		this.eventName = event;
+		this.validActions = validActions;
+	
 	}
 
 
 	@Override
 	public ResponseBean geResponseBean ()
 	{
-		return new ResponseBean(400, "action '"+this.actionName+"' is not supported for event "+this.eventName);
+		return new ResponseBean(400, "action '"+this.actionName+"' is not supported for event "+this.eventName+" supported actions: "+this.validActions);
 	}
 
 
@@ -33,7 +40,11 @@ public class InvalidActionException  extends Exception implements RestException{
 	}
 
 
-	
+	public String getValidActions ()
+	{
+		return this.validActions.toString();
+	}
+
 
 	
 	

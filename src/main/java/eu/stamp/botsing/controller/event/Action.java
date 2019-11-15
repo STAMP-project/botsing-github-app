@@ -14,4 +14,6 @@ public interface Action {
 	ResponseBean execute (ActionObject actionObject) throws Exception;
 
 	void applyFilter (JsonObject jsonObject) throws FilteredActionException;
+	
+	String getDescription ();	
 }

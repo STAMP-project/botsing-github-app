@@ -28,15 +28,16 @@ public class GitHubAppController extends QueuedAppController{
 	private Logger log = LoggerFactory.getLogger(GitHubAppController.class);
 
 	@RequestMapping("/test")
-	public String greeting(String message) {
+	public String greeting(String message) 
+	{
 		return "This is the Botsing GitHub App Test Service. More information can be found here: https://github.com/STAMP-project/botsing-server";
 	}
 
 
 
 	@PostMapping(value = "/botsing-github-app")
-	public ResponseEntity<String> getPullRequestFullBody(HttpServletRequest request,@RequestHeader(value = "X-GitHub-Event", defaultValue = "")  String eventType) {
-
+	public ResponseEntity<String> getPullRequestFullBody(HttpServletRequest request,@RequestHeader(value = "X-GitHub-Event", defaultValue = "")  String eventType) 
+	{
 		ResponseEntity<String> response = null;
 		
 		try 
@@ -58,7 +59,7 @@ public class GitHubAppController extends QueuedAppController{
 			}
 			catch (InvalidActionException iae)
 			{
-				this.log.debug("Invalid action "+iae.getActionName()+ " for event "+iae.getEventName());
+				this.log.debug("Invalid action "+iae.getActionName()+ " for event "+iae.getEventName()+" in GitHub, valid actions: "+iae.getValidActions());
 				responseBean =   iae.geResponseBean();
 			} catch (FilteredActionException fie)
 			{
@@ -66,10 +67,8 @@ public class GitHubAppController extends QueuedAppController{
 				responseBean = fie.geResponseBean();
 			}
 				
-
 			response = ResponseEntity.status(responseBean.getStatus()).body(responseBean.getMessage());
 
-			
 		} catch (Exception e) {
 		
 			log.error("Error parsing event", e);

@@ -58,7 +58,7 @@ public class JiraAppController extends QueuedAppController{
 			}
 			catch (InvalidActionException iae)
 			{
-				this.log.debug("Invalid action "+iae.getActionName()+ " for event "+iae.getEventName());
+				this.log.debug("Invalid action "+iae.getActionName()+ " for event "+iae.getEventName()+" in Jira");
 				responseBean =   iae.geResponseBean();
 			} catch (FilteredActionException fie)
 			{

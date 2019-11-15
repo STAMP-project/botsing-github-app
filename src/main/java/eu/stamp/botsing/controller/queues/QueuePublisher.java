@@ -74,4 +74,13 @@ public class QueuePublisher implements Action {
 		
 	}
 
+
+
+
+	@Override
+	public String getDescription() 
+	{
+		return "Queue Publisher";
+	}
+
 }

@@ -22,9 +22,11 @@ public class GitHubConfigurationBasedChangeLabelActionFilter implements ActionFi
 							NAME = "name";
 	
 	private final String acceptedLabel;
+	private String description;
 	
 	public GitHubConfigurationBasedChangeLabelActionFilter(ConfigurationBean configuration) {
 		this.acceptedLabel = configuration.getGithubAcceptedLabel();
+		this.description = "accepted label: "+acceptedLabel;
 	}
 	
 	@Override
@@ -51,6 +53,13 @@ public class GitHubConfigurationBasedChangeLabelActionFilter implements ActionFi
 			
 		}
 
+	}
+
+	@Override
+	public String getDescription() 
+	{
+
+		return description;
 	}
 	
 

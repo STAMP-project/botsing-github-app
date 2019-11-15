@@ -24,9 +24,12 @@ public class JiraIssuesDefaultAction  implements JiraIssuesAction{
 	private final String 	DEFAULT_ACTION ="default",
 							QUALIFIED_ACTION_NAME = EVENT_NAME+"."+DEFAULT_ACTION;
 
+	private String description;
+	
 
 	public JiraIssuesDefaultAction(ConfigurationBean configuration) {
 		this.configuration = configuration;
+		this.description = "Jira generic action for "+EVENT_NAME;
 	}
 
 
@@ -99,6 +102,13 @@ public class JiraIssuesDefaultAction  implements JiraIssuesAction{
 
 	@Override
 	public void applyFilter(JsonObject jsonObject) throws FilteredActionException {
+	}
+
+
+	@Override
+	public String getDescription() 
+	{
+		return this.description;
 	}
 
 }

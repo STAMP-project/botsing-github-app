@@ -25,13 +25,14 @@ public class GitHubIssuesActionBotsing implements GitHubIssuesAction
 	private final String 	QUALIFIED_ACTION_NAME, ACTION_NAME;
 	private GitHubClientManager gitHubClientManager;
 	private GitHubCommentManager commentManager;
+	private String description;
 
 
 	public GitHubIssuesActionBotsing(GitHubClientManager gitHubClientManager, String actionName) {
 		this.gitHubClientManager = gitHubClientManager;
 		this.commentManager = new GitHubCommentManager(gitHubClientManager);
 		this.QUALIFIED_ACTION_NAME = EVENT_NAME+"."+actionName;
-		this.ACTION_NAME = actionName;
+		this.description = this.ACTION_NAME = actionName;
 	}
 	
 	
@@ -54,6 +55,8 @@ public class GitHubIssuesActionBotsing implements GitHubIssuesAction
 	protected void setActionFilter (ActionFilter actionFilter)
 	{
 		this.actionFilter = actionFilter;
+		
+		if (actionFilter != null) this.description = this.description+" [filter: "+actionFilter.getDescription()+"]";
 	}
 	
 
@@ -74,6 +77,15 @@ public class GitHubIssuesActionBotsing implements GitHubIssuesAction
 		if (actionFilter != null) this.actionFilter.apply(GitHubIssuesAction.EVENT_NAME, this.ACTION_NAME,jsonObject);	
 	}
 
+
+	@Override
+	public String getDescription() 
+	{
+		return this.description;
+	}
+
+
+	
 
 	
 }
