@@ -1,3 +1,4 @@
+
 # Botsing Server
 
 This web service acts as a bridge between Botsing and Github or Jira. In, starting from an issue opened on Github or Jira, containing the stacktrace of a runtime error, it  generates a test to reproduce it on Botsing and notifies about the results.
@@ -19,7 +20,7 @@ There must be these applications installed on the local machine:
 To install this application you must get a copy of the project from GitHub:
 
 ```
-git clone https://github.com/STAMP-project/server-app.git
+git clone https://github.com/STAMP-project/botsing-server
 ```
 ### Configuration
 
@@ -41,6 +42,7 @@ The paremeters to be set are:
 1. proxyHost: proxy host, leave blank if you do not use it
 1. proxyPort: proxy port, leave blank if you do not use it
 
+You can get the githubOAuth2Token from Profile > Settings > Developer settings > Personal access tokens > Generate new token
 ### Build
 
 Then you need to build the package:
@@ -54,19 +56,19 @@ mvn clean package
 To execute the application you must run this:
 
 ```
-java -jar target/botsing-server-1.0.0.jar
+java -jar target/botsing-server-1.1.0.jar
 ```
 
 #### Run it under corporate proxy
 
-This application expose a REST service that should be called from GitHub so, if you are behind a corporate proxy, you must bypass it.
-easiest way is to use some service like ngrok. You have to register to it and the you can run it:
+This application exposes a REST service that should be called from GitHub so, if you are behind a corporate proxy, you must bypass it.
+easiest way is to use some service like ngrok ([https://ngrok.com/download](https://ngrok.com/download)). You have to register to it and the you can run it:
 
 ```
 ./ngrok http 3000
 ```
 
-In this way you expose the local port 3000 through the URL that ngrok will give you.
+In this way, you expose the local port 3000 (you have previously defined) through the URL that ngrok will give you.
 
 ## Create Botsing server app App
 
@@ -78,19 +80,22 @@ To create the Botsing server app at GitHub side you need to access GitHub with y
 
 Here you have to set:
 
-* a name and a description for the app 
-* a homepage url the URL containing basic information on the App (can be also a test URL)
-* the webhook URL, that is the URL of the service exposed by the server that you installed in the steps before.
+* a GitHub App name
+* a Homepage URL containing basic information on the App (can be also a test URL, e.g. http://BOTSING_SERVER_IP/test, where BOTSING_SERVER_IP could be the ngrok URL for example) 
+* a Webhook URL, that is the URL of the service exposed by the server that you installed in the steps before (e.g http://BOTSING_SERVER_IP/botsing-github-app or ngrok URL/botsing-github-app).
 
 In the section ''permission & events'' you need to set the permission to enable botsing-server to access perform its activities, in particular:
 
 * read and write the repository
+* read and write code
 * read and write the issues 
 * read and write the pull requests.
 
 In the subsection ''Subscribe to events'' you need to check the event ''issues''.
 
-Then you have to choice an authentication method to be set on botsing-server to access GitHub. The methods currently supported are:
+Then you have to choose an authentication method to be set on botsing-server to access GitHub. The botsing-server have to access the repository and the notifications. 
+
+The methods currently supported are:
 
 * username/password (you need to set your username/password credentials on botsing configuration file as described above)
 * OAuth2 token (you need to create an OAuth2 token at GitHub side and copy it on the configuration file as described above)
@@ -109,10 +114,24 @@ artifact_id=authzforce-ce-core-pdp-testutils
 version=13.3.1
 search_budget=60
 global_timeout=90
+population=100
+package_filter=org.ow2.authzforce
 ```
-
 `search_budget` and `global_timeout` are optional. More details on the parameters can be found in [botsing-maven](https://github.com/STAMP-project/botsing/tree/master/botsing-maven) project.
 
+You can now create an issue that contains as an example the following stacktrace:
+```
+java.lang.RuntimeException: Failed to load XML schemas: [classpath:pdp.xsd]  
+at org.ow2.authzforce.core.pdp.impl.SchemaHandler.createSchema(SchemaHandler.java:541)  
+at org.ow2.authzforce.core.pdp.impl.PdpModelHandler.(PdpModelHandler.java:159)  
+at org.ow2.authzforce.core.pdp.impl.PdpEngineConfiguration.getInstance(PdpEngineConfiguration.java:682)  
+at org.ow2.authzforce.core.pdp.impl.PdpEngineConfiguration.getInstance(PdpEngineConfiguration.java:699)  
+at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)  
+at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)  
+at java.lang.reflect.Method.invoke(Method.java:498)  
+at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:162)
+```
+You should see now a new test suite that reproduces the issue.
 # Jira
 
 To use Botsing server with Jira you need to follow the guide in the (botsing-jira-plugin)[https://github.com/STAMP-project/botsing-jira-plugin].
