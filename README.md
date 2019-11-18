@@ -36,6 +36,7 @@ The paremeters to be set are:
 1. githubOAuth2Token: user token to connect to github (alternative to githubUsername and githubUsername)
 1. githubUsername: user used to clone the repository and create the pull request (alternative to githubOAuth2Token)
 1. githubPassword: password of the user (alternative to githubOAuth2Token)
+1. githubAcceptedLabel: the GitHub Label that define an issue that should be processed (e.g. botsing)
 1. jiraURL: url of the server Jira
 1. jiraUsername: username of Jira user
 1. jiraPassword: Jira password
