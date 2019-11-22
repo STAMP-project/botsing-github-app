@@ -103,6 +103,7 @@ The methods currently supported are:
 
 Finally you have to install the app and select the repository.
 
+
 # Add Botsing properties file
 
 In the repository where the issue containing the stacktrace will be opened you have to create a `.botsing` file to put the default parameters used to run Botsing.
@@ -120,19 +121,35 @@ package_filter=org.ow2.authzforce
 ```
 `search_budget` and `global_timeout` are optional. More details on the parameters can be found in [botsing-maven](https://github.com/STAMP-project/botsing/tree/master/botsing-maven) project.
 
-You can now create an issue that contains as an example the following stacktrace:
-```
-java.lang.RuntimeException: Failed to load XML schemas: [classpath:pdp.xsd]  
-at org.ow2.authzforce.core.pdp.impl.SchemaHandler.createSchema(SchemaHandler.java:541)  
-at org.ow2.authzforce.core.pdp.impl.PdpModelHandler.(PdpModelHandler.java:159)  
-at org.ow2.authzforce.core.pdp.impl.PdpEngineConfiguration.getInstance(PdpEngineConfiguration.java:682)  
-at org.ow2.authzforce.core.pdp.impl.PdpEngineConfiguration.getInstance(PdpEngineConfiguration.java:699)  
-at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)  
-at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)  
-at java.lang.reflect.Method.invoke(Method.java:498)  
-at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:162)
-```
-You should see now a new test suite that reproduces the issue.
+# Execution
+
+Botsing Server receives notifications from GitHub when specific events happen on 'issues'. Specifically Botsing Server is triggered if:
+
+* a issue labeled 'botsing' is created
+* a existing issue is labeled as 'botsing'.
+
+The `botsing` label distinguishes the `issues` that will be taken onto account from the others. For this reason it is primarily needed to `create a label called botsing`.
+
+The body of the issue must contain a valid stacktrace in order to be correctly processed by Botsing.
+
+Therefore, in order to test Botsing Server:
+
+ 1\. create an issue containing the following stacktrace:
+         
+        java.lang.RuntimeException: Failed to load XML schemas: [classpath:pdp.xsd]  
+        at org.ow2.authzforce.core.pdp.impl.SchemaHandler.createSchema(SchemaHandler.java:541)  
+        at org.ow2.authzforce.core.pdp.impl.PdpModelHandler.(PdpModelHandler.java:159)  
+        at org.ow2.authzforce.core.pdp.impl.PdpEngineConfiguration.getInstance(PdpEngineConfiguration.java:682)  
+        at org.ow2.authzforce.core.pdp.impl.PdpEngineConfiguration.getInstance(PdpEngineConfiguration.java:699)  
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)  
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)  
+        at java.lang.reflect.Method.invoke(Method.java:498)  
+        at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:162)        
+        
+ 2\. label the created issue as `botsing`.
+
+If the operation has been correctly performed, a new comment should appear in the same issue notifying that Botsing is working and, after some minutes, a new test suite that reproduces the issue should be provided.
+
 # Jira
 
 To use Botsing server with Jira you need to follow the guide in the (botsing-jira-plugin)[https://github.com/STAMP-project/botsing-jira-plugin].
